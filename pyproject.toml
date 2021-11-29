@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "pyvultr"
+version = "0.1.0"
+description = "Python library for Vultr API"
+authors = ["fishermanadg <fishermanadg@gmail.com>"]
+license = "LGPL"
+
+[tool.poetry.dependencies]
+python = "^3.6.2"
+requests = "^2.26.0"
+dacite = "^1.6.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+black = "^21.11b1"
+pre-commit = "^2.15.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+target-version = ["py36"]
+line-length = 120
+
+[tool.isort]
+# https://github.com/psf/black/blob/06ccb88bf2bd35a4dc5d591bb296b5b299d07323/docs/guides/using_black_with_other_tools.md#isort
+profile = "black"
+line_length = 120
+
+[tool.bandit]
+# skip check for `B101`(assert used)
+# https://bandit.readthedocs.io/en/latest/plugins/index.html#complete-test-plugin-listing
+# https://bandit.readthedocs.io/en/latest/blacklists/index.html#complete-plugin-listing
+recursive = true
+skips = ["B101"]
+
+[tool.pydocstyle]
+ignore = "D100, D101, D104, D105, D107, D203, D213, D406, D407, D413"
