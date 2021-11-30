@@ -6,7 +6,8 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -40,12 +41,14 @@ class ObjectStorageClusterItem(BaseDataclass):
 class ObjectStorage(BaseVultrV2):
     """Vultr ObjectStorage API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/s3
+
     Object Storage is S3 API compatible. Objects uploaded to object storage can be accessed privately or
     publicly on the web. Object storage supports a virtually unlimited number of objects.
     Control your Object Storage via the API or browse in the Customer Portal.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -67,11 +70,10 @@ class ObjectStorage(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[ObjectStorageItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[ObjectStorageItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ObjectStorageItem]: a paginated list of `ObjectStorageItem`.
+            VultrPagination[ObjectStorageItem]: A list-like object of `ObjectStorageItem` object.
         """
         return VultrPagination[ObjectStorageItem](
             fetcher=self._get,
@@ -161,11 +163,11 @@ class ObjectStorage(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[ObjectStorageClusterItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[ObjectStorageClusterItem],
+            see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ObjectStorageClusterItem]: a paginated list of `ObjectStorageClusterItem`.
+            VultrPagination[ObjectStorageClusterItem]: A list-like object of `ObjectStorageClusterItem` object.
         """
         fetcher = partial(self._get, endpoint="/clusters")
         return VultrPagination[ObjectStorageClusterItem](

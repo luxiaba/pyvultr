@@ -6,8 +6,9 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value, merge_args
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import BareMetalUpgradeType
+
+from .base import BaseVultrV2
+from .enum import BareMetalUpgradeType
 
 
 @dataclass
@@ -79,11 +80,13 @@ class BareMetalVNC(BaseDataclass):
 class BareMetal(BaseVultrV2):
     """Vultr BareMetal API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/baremetal
+
     Bare Metal servers give you access to the underlying physical
     hardware in a single-tenant environment without a virtualization layer.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -100,11 +103,10 @@ class BareMetal(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[BareMetalItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[BareMetalItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[BareMetalItem]: a paginated list of `BareMetalItem`.
+            VultrPagination[BareMetalItem]: A list-like object of `BareMetalItem` object.
         """
         return VultrPagination[BareMetalItem](
             fetcher=self._get,
@@ -193,11 +195,10 @@ class BareMetal(BaseVultrV2):
             bare_metal_id: The Bare Metal instance id.
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[BareMetalIPV4Item],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[BareMetalIPV4Item], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[BareMetalIPV4Item]: a paginated list of `BareMetalIPV4Item`.
+            VultrPagination[BareMetalIPV4Item]: A list-like object of `BareMetalIPV4Item` object.
         """
         fetcher = partial(self._get, endpoint=f"/{bare_metal_id}/ipv4")
         return VultrPagination[BareMetalIPV4Item](
@@ -221,11 +222,10 @@ class BareMetal(BaseVultrV2):
             bare_metal_id: The Bare Metal instance id.
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[BareMetalIPV6Item],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[BareMetalIPV6Item], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[BareMetalIPV6Item]: a paginated list of `BareMetalIPV6Item`.
+            VultrPagination[BareMetalIPV6Item]: A list-like object of `BareMetalIPV6Item` object.
         """
         fetcher = partial(self._get, endpoint=f"/{bare_metal_id}/ipv6")
         return VultrPagination[BareMetalIPV6Item](

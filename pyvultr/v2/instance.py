@@ -6,8 +6,9 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value, merge_args
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import BackupScheduleType, InstanceUpgradeType
+
+from .base import BaseVultrV2
+from .enum import BackupScheduleType, InstanceUpgradeType
 
 
 @dataclass
@@ -125,12 +126,14 @@ class AvailableUpgrade(BaseDataclass):
 class Instance(BaseVultrV2):
     """Vultr Instance API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/instances
+
     Vultr Cloud instances can be deployed with your preferred operating system or pre-installed application in seconds.
     High Frequency Compute instances are powered by high clock speed CPU's and NVMe local storage to power
     your most demanding applications. Dedicated Cloud instances have dedicated CPU, SSD drives, and RAM.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -158,11 +161,10 @@ class Instance(BaseVultrV2):
             tag: Filter by specific tag.
             label: Filter by label.
             main_ip: Filter by main ip address.
-            capacity: the capacity of the VultrPagination[InstanceItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[InstanceItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[InstanceItem]: a paginated list of `InstanceItem`.
+            VultrPagination[InstanceItem]: A list-like object of `InstanceItem` object.
         """
         _extra_params = {
             "tag": tag,
@@ -358,7 +360,6 @@ class Instance(BaseVultrV2):
 
         Returns:
             List[str]: An array of Instance ids in the same location as this Instance.
-
         """
         resp = self._get(f"/{instance_id}/neighbors")
         return get_only_value(resp)
@@ -376,11 +377,10 @@ class Instance(BaseVultrV2):
             instance_id: The Instance id.
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[PrivateNetworkItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[PrivateNetworkItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[PrivateNetworkItem]: a paginated list of `PrivateNetworkItem`.
+            VultrPagination[PrivateNetworkItem]: A list-like object of `PrivateNetworkItem` object.
         """
         fetcher = partial(self._get, endpoint=f"/{instance_id}/private-networks")
         return VultrPagination[PrivateNetworkItem](
@@ -537,11 +537,10 @@ class Instance(BaseVultrV2):
             public_network: List only Public networks.
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[IPv4Item],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[IPv4Item], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[IPv4Item]: a paginated list of `IPv4Item`.
+            VultrPagination[IPv4Item]: A list-like object of `IPv4Item` object.
         """
         _public_network = None
         if public_network is not None:
@@ -588,11 +587,10 @@ class Instance(BaseVultrV2):
             instance_id: The Instance id.
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[IPv6Item],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[IPv6Item], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[IPv6Item]: a paginated list of `IPv6Item`.
+            VultrPagination[IPv6Item]: A list-like object of `IPv6Item` object.
         """
         fetcher = partial(self._get, endpoint=f"/{instance_id}/ipv6")
         return VultrPagination[IPv4Item](

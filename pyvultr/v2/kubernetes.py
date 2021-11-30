@@ -6,7 +6,8 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -69,10 +70,12 @@ class ClusterItem(BaseDataclass):
 class Kubernetes(BaseVultrV2):
     """Vultr Kubernetes API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/kubernetes
+
     Vultr Kubernetes Engine is a managed Kubernetes offering.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -89,11 +92,10 @@ class Kubernetes(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[ClusterItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[ClusterItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ClusterItem]: a paginated list of `ClusterItem`.
+            VultrPagination[ClusterItem]: A list-like object of `ClusterItem` object.
         """
         fetcher = partial(self._get, endpoint="/clusters")
         return VultrPagination[ClusterItem](
@@ -202,11 +204,10 @@ class Kubernetes(BaseVultrV2):
             vke_id: The Cluster ID.
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[ClusterNodePoolFull],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[ClusterNodePoolFull], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ClusterNodePoolFull]: a paginated list of `ClusterItem`.
+            VultrPagination[ClusterNodePoolFull]: A list-like object of `ClusterItem` object.
         """
         fetcher = partial(self._get, endpoint=f"/clusters/{vke_id}/node-pools")
         return VultrPagination[ClusterNodePoolFull](

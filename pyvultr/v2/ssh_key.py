@@ -5,7 +5,8 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -19,12 +20,14 @@ class SSHKeyItem(BaseDataclass):
 class SSHKey(BaseVultrV2):
     """Vultr SSHKey API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/ssh
+
     You can add SSH keys to your account, which can be copied to new instances when first deployed.
     Updating a key does not update any running instances.
     If you reinstall an instance (erasing all its data), it will inherit the updated key.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -41,11 +44,10 @@ class SSHKey(BaseVultrV2):
         Args:
             per_page: number of items requested per page. Default is 100 and Max is 500.
             cursor: cursor for paging.
-            capacity: the capacity of the VultrPagination[SSHKeyItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[SSHKeyItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[SSHKeyItem]: A paginated list of `SSHKeyItem`.
+            VultrPagination[SSHKeyItem]: A list-like object of `SSHKeyItem` object.
         """
         return VultrPagination[SSHKeyItem](
             fetcher=self._get,

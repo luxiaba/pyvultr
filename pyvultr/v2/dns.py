@@ -6,8 +6,9 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import DNSRecordType
+
+from .base import BaseVultrV2
+from .enum import DNSRecordType
 
 
 @dataclass
@@ -36,12 +37,14 @@ class DNSRecord(BaseDataclass):
 class DNS(BaseVultrV2):
     """Vultr DNS API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/dns
+
     Vultr offers free DNS hosting for customers' domains.
     The nameservers are on an AnyCAST network and ensure fast DNS resolution.
     When you manage your DNS through the API, you can view the results in your customer portal.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -58,11 +61,10 @@ class DNS(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[Domain],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[Domain], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[Domain]: a paginated list of `Domain`.
+            VultrPagination[Domain]: A list-like object of `Domain` object.
         """
         return VultrPagination[Domain](
             fetcher=self._get,
@@ -220,11 +222,10 @@ class DNS(BaseVultrV2):
             dns_domain: The DNS Domain.
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[DNSRecord],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[DNSRecord], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[DNSRecord]: a paginated list of `DNSRecord`.
+            VultrPagination[DNSRecord]: A list-like object of `DNSRecord` object.
         """
         fetcher = partial(self._get, endpoint=f"/{dns_domain}/records")
         return VultrPagination[DNSRecord](

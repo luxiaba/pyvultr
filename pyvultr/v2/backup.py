@@ -5,7 +5,8 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -20,6 +21,8 @@ class BackupItem(BaseDataclass):
 class Backup(BaseVultrV2):
     """Vultr Backup API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/backup
+
     A backup is a scheduled, automatic, point-in-time image of an instance.
     We do not stop the instance when taking a backup. Booting from a backup is similar to rebooting
     after a non-graceful restart. Snapshots are physically the same as backups, but snapshots are manual while
@@ -27,7 +30,7 @@ class Backup(BaseVultrV2):
     Backups can be converted into snapshots. See our Automatic Backup FAQ for more information.
 
     Attributes
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided..
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided..
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -51,11 +54,10 @@ class Backup(BaseVultrV2):
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
             instance_id: Filter the backup list by Instance id.
-            capacity: the capacity of the VultrPagination[BackupItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[BackupItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[BackupItem]: a paginated list of `BackupItem`.
+            VultrPagination[BackupItem]: A list-like object of `BackupItem` object.
         """
         extra_params = {
             "instance_id": instance_id,

@@ -5,8 +5,9 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import StartupScriptType
+
+from .base import BaseVultrV2
+from .enum import StartupScriptType
 
 
 @dataclass
@@ -22,12 +23,14 @@ class StartupScriptItem(BaseDataclass):
 class StartupScript(BaseVultrV2):
     """Vultr StartupScript API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/startup
+
     Vultr allows you to assign two types of scripts to a server.
     Boot scripts configure new deployments, and PXE scripts automatically install operating systems.
     Assign startup scripts to your servers through the API or on your Startup Scripts page in the customer portal.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -49,11 +52,10 @@ class StartupScript(BaseVultrV2):
         Args:
             per_page: number of items requested per page. Default is 100 and Max is 500.
             cursor: cursor for paging.
-            capacity: the capacity of the VultrPagination[StartupScriptItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[StartupScriptItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[StartupScriptItem]
+            VultrPagination[StartupScriptItem]: A list-like object of `StartupScriptItem` object.
 
         """
         return VultrPagination[StartupScriptItem](

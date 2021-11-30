@@ -6,8 +6,9 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import FirewallProtocol, IPType
+
+from .base import BaseVultrV2
+from .enum import FirewallProtocol, IPType
 
 
 @dataclass
@@ -37,11 +38,13 @@ class FirewallRule(BaseDataclass):
 class Firewall(BaseVultrV2):
     """Vultr Firewall API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/firewall
+
     Vultr offers a web-based firewall solution to protect one or more compute instances.
     Firewall groups can manage multiple servers with a standard ruleset. You can control multiple groups with the API.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -63,11 +66,10 @@ class Firewall(BaseVultrV2):
         Args:
             per_page: number of items requested per page. Default is 100 and Max is 500.
             cursor: cursor for paging.
-            capacity: the capacity of the VultrPagination[FirewallGroup],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[FirewallGroup], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[FirewallGroup]: A paginated list of `FirewallGroup`.
+            VultrPagination[FirewallGroup]: A list-like object of `FirewallGroup` object.
         """
         return VultrPagination[FirewallGroup](
             fetcher=self._get,
@@ -145,11 +147,10 @@ class Firewall(BaseVultrV2):
             firewall_group_id:  The firewall group id.
             per_page: number of items requested per page. Default is 100 and Max is 500.
             cursor: cursor for paging.
-            capacity: the capacity of the VultrPagination[FirewallRule],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[FirewallRule], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[FirewallRule]: A paginated list of `FirewallRule`.
+            VultrPagination[FirewallRule]: A list-like object of `FirewallRule` object.
         """
         fetcher = partial(self._get, endpoint=f"/{firewall_group_id}/rules")
         return VultrPagination[FirewallRule](

@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import logging
 
 from pyvultr.v2 import (
@@ -24,6 +26,13 @@ from pyvultr.v2 import (
     StartupScript,
     User,
 )
+
+__author__ = "fishermanadg"
+__copyright__ = "Copyright 2021, The pyvultr Project"
+__license__ = "License: LGPL"
+__version__ = "0.1.0"
+__email__ = "fishermanadg@gmail.com"
+
 
 log = logging.getLogger(__name__)
 

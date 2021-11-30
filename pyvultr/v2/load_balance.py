@@ -6,8 +6,9 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value, merge_args
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import Protocol
+
+from .base import BaseVultrV2
+from .enum import Protocol
 
 
 @dataclass
@@ -67,11 +68,13 @@ class LoadBalanceItem(BaseDataclass):
 class LoadBalance(BaseVultrV2):
     """Vultr LoanBalance API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/load-balancer
+
     Load Balancers sit in front of your application and distribute incoming traffic across multiple Instances.
     When you control the load balancer via the API, you can inspect the results in the customer portal.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -88,11 +91,10 @@ class LoadBalance(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[LoadBalanceItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[LoadBalanceItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[LoadBalanceItem]: a paginated list of `LoadBalanceItem`.
+            VultrPagination[LoadBalanceItem]: A list-like object of `LoadBalanceItem` object.
         """
         return VultrPagination[LoadBalanceItem](
             fetcher=self._get,
@@ -168,11 +170,10 @@ class LoadBalance(BaseVultrV2):
             load_balancer_id: The Loan Balance id.
             per_page: number of items requested per page. Default is 100 and Max is 500.
             cursor: cursor for paging.
-            capacity: the capacity of the VultrPagination[LoadBalanceForwardRule],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[LoadBalanceForwardRule], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[LoadBalanceForwardRule]: a paginated list of `LoadBalanceForwardRule`.
+            VultrPagination[LoadBalanceForwardRule]: A list-like object of `LoadBalanceForwardRule` object.
         """
         fetcher = partial(self._get, endpoint=f"/{load_balancer_id}/forwarding-rules")
         return VultrPagination[LoadBalanceForwardRule](
@@ -251,11 +252,10 @@ class LoadBalance(BaseVultrV2):
             load_balancer_id:
             per_page: number of items requested per page. Default is 100 and Max is 500.
             cursor: cursor for paging.
-            capacity: the capacity of the VultrPagination[LoadBalanceFirewallRule],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[LoadBalanceFirewallRule], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[LoadBalanceFirewallRule]: A paginated list of `LoadBalanceFirewallRule`.
+            VultrPagination[LoadBalanceFirewallRule]: A list-like object of `LoadBalanceFirewallRule` object.
         """
         fetcher = partial(self._get, endpoint=f"/{load_balancer_id}/firewall-rules")
         return VultrPagination[LoadBalanceFirewallRule](

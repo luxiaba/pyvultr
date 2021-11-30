@@ -5,7 +5,8 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -21,12 +22,14 @@ class PrivateNetworkItem(BaseDataclass):
 class PrivateNetwork(BaseVultrV2):
     """Vultr PrivateNetwork API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/private-Networks
+
     Private Networks are fully isolated networks accessible only by instances on your account.
     Each private network is only available in one Region and cannot span across regions.
     An instance can connect to multiple private networks and you may have up to 5 private networks per region.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -48,11 +51,10 @@ class PrivateNetwork(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[PrivateNetworkItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[PrivateNetworkItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[PrivateNetworkItem]: a paginated list of `PrivateNetworkItem`.
+            VultrPagination[PrivateNetworkItem]: A list-like object of `PrivateNetworkItem` object.
         """
         return VultrPagination[PrivateNetworkItem](
             fetcher=self._get,

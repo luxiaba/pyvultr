@@ -5,8 +5,9 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import IPType
+
+from .base import BaseVultrV2
+from .enum import IPType
 
 
 @dataclass
@@ -23,11 +24,13 @@ class ReservedIPItem(BaseDataclass):
 class ReservedIP(BaseVultrV2):
     """Vultr ReservedIP API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/reserved-ip
+
     IP addresses can be reserved and moved between instances.
     Reserved IPs can also be used as floating addresses for high-availability.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -44,11 +47,10 @@ class ReservedIP(BaseVultrV2):
         Args:
             per_page: number of items requested per page. Default is 100 and Max is 500.
             cursor: cursor for paging.
-            capacity: the capacity of the VultrPagination[ReservedIPItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[ReservedIPItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ReservedIPItem]: A paginated list of `ReservedIPItem`.
+            VultrPagination[ReservedIPItem]: A list-like object of `ReservedIPItem` object.
         """
         return VultrPagination[ReservedIPItem](
             fetcher=self._get,

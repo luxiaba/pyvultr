@@ -18,7 +18,7 @@ class PageMetaLink(BaseDataclass):
 @dataclass
 class PageMeta(BaseDataclass):
     links: PageMetaLink
-    total: int = 0
+    total: int
 
 
 T = TypeVar("T")
@@ -35,7 +35,7 @@ class VultrPagination(Generic[T], list):
 
     def __init__(
         self,
-        fetcher: Callable[[Any], Dict],
+        fetcher: Callable[[...], Dict],
         cursor: str = None,
         page_size: int = None,
         return_type: T = None,
@@ -43,7 +43,7 @@ class VultrPagination(Generic[T], list):
         **params: Dict[str, Any],
     ):
         super().__init__()
-        self.fetcher: Callable[[Any], Dict] = fetcher
+        self.fetcher: Callable[[...], Dict] = fetcher
         self.cursor: str = cursor
         self.page_size: int = page_size
         self.return_type = return_type

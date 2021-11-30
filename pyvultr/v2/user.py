@@ -5,8 +5,9 @@ from urllib.parse import urljoin
 import dacite
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import ACL
+
+from .base import BaseVultrV2
+from .enum import ACL
 
 
 @dataclass
@@ -22,11 +23,13 @@ class UserInfo(BaseDataclass):
 class User(BaseVultrV2):
     """Vultr User API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/users
+
     Vultr supports multiple users in each account, and each user has individual access permissions.
     Users have unique API keys, which respect the permission for that user.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -43,11 +46,10 @@ class User(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: The capacity of the VultrPagination[UserInfo],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[UserInfo], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[UserInfo]: A paginated list of User info.
+            VultrPagination[UserInfo]: A list-like object of `UserInfo` object.
         """
         return VultrPagination[UserInfo](
             fetcher=self._get,
