@@ -1,8 +1,8 @@
 import uuid
 
 from pyvultr.base_api import SupportHttpMethod
-from pyvultr.v2 import StartupScriptItem
-from pyvultr.v2.enum import StartupScriptType
+from pyvultr.v2 import StartupScript
+from pyvultr.v2.enums import StartupScriptType
 from tests.v2 import BaseTestV2
 
 
@@ -11,10 +11,10 @@ class TestStartupScript(BaseTestV2):
         """Test list scripts."""
         with self._get("response/startup_scripts") as mock:
             _excepted_result = mock.python_body["startup_scripts"][0]
-            excepted_result = StartupScriptItem.from_dict(_excepted_result)
+            excepted_result = StartupScript.from_dict(_excepted_result)
 
             _real_result = self.api_v2.startup_script.list(capacity=1)
-            real_result: StartupScriptItem = _real_result.first()
+            real_result: StartupScript = _real_result.first()
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/startup-scripts")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -22,13 +22,13 @@ class TestStartupScript(BaseTestV2):
 
     def test_create(self):
         """Test create script."""
-        with self._post("response/startup_script", expected_returned=StartupScriptItem, status_code=201) as mock:
+        with self._post("response/startup_script", expected_returned=StartupScript, status_code=201) as mock:
             excepted_result = mock.python_body
 
             name = "test_name_1"
             script = "test_script"
             script_type = StartupScriptType.PXE
-            real_result: StartupScriptItem = self.api_v2.startup_script.create(
+            real_result: StartupScript = self.api_v2.startup_script.create(
                 name=name,
                 script=script,
                 script_type=script_type,
@@ -44,11 +44,11 @@ class TestStartupScript(BaseTestV2):
 
     def test_get(self):
         """Test get script."""
-        with self._get("response/startup_script", expected_returned=StartupScriptItem) as mock:
+        with self._get("response/startup_script", expected_returned=StartupScript) as mock:
             excepted_result = mock.python_body
 
             startup_script_id = str(uuid.uuid4())
-            real_result: StartupScriptItem = self.api_v2.startup_script.get(startup_id=startup_script_id)
+            real_result: StartupScript = self.api_v2.startup_script.get(startup_id=startup_script_id)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/startup-scripts/{startup_script_id}")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -59,7 +59,7 @@ class TestStartupScript(BaseTestV2):
         with self._patch(status_code=204) as mock:
             startup_script_id = str(uuid.uuid4())
             name = "test_name_2"
-            real_result: StartupScriptItem = self.api_v2.startup_script.update(startup_script_id, name=name)
+            real_result: StartupScript = self.api_v2.startup_script.update(startup_script_id, name=name)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/startup-scripts/{startup_script_id}")
             self.assertEqual(mock.method, SupportHttpMethod.PATCH.value)

@@ -4,7 +4,7 @@ from typing import List
 from pyvultr.base_api import SupportHttpMethod
 from pyvultr.utils import get_only_value
 from pyvultr.v2 import SOA, DNSRecord, Domain
-from pyvultr.v2.enum import DNSRecordType
+from pyvultr.v2.enums import DNSRecordType
 from tests.v2 import BaseTestV2
 
 

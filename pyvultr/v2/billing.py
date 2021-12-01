@@ -10,36 +10,37 @@ from .base import BaseVultrV2
 
 @dataclass
 class Bill(BaseDataclass):
-    id: int
-    date: str
-    type: str
-    description: str
-    amount: float
-    balance: float
+    id: int  # ID of the billing history item.
+    date: str  # Date billing history item was generated.
+    type: str  # Type of billing history item.
+    description: str  # Description of billing history item.
+    amount: float  # Amount for the billing history item in dollars.
+    balance: float  # The accounts balance in dollars.
 
 
 @dataclass
 class Invoice(BaseDataclass):
-    id: int
-    date: str
-    description: str
-    amount: float
-    # balance: float # TODO check with API
+    id: int  # ID of the invoice.
+    date: str  # Date the invoice was generated.
+    description: str  # Description of the invoice.
+    amount: float  # Amount of the invoice in dollars.
+    # TODO check with API(Docs not match with code)
+    balance: float = None  # The accounts balance in dollars.
 
 
 @dataclass
 class InvoiceItem(BaseDataclass):
-    description: str
-    end_date: str
-    product: str
-    start_date: str
-    total: float
-    unit_price: float
-    unit_type: str
-    units: int
+    description: str  # Description of the invoice item.
+    end_date: str  # End date of item.
+    product: str  # Product name.
+    start_date: str  # Start date of item.
+    total: float  # Total amount due in dollars.
+    unit_price: float  # Price per unit in dollars.
+    unit_type: str  # Unit type, see `enums.InvoiceUnitType` for details.
+    units: int  # Number of units item consumed in billing period.
 
 
-class Billing(BaseVultrV2):
+class BillingAPI(BaseVultrV2):
     """Vultr Billing API.
 
     Reference: https://www.vultr.com/zh/api/#tag/billing
@@ -47,7 +48,7 @@ class Billing(BaseVultrV2):
     Read-only billing information for your user account.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):

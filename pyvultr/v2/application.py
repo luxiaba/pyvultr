@@ -5,21 +5,21 @@ from typing import Optional
 from pyvultr.utils import BaseDataclass, VultrPagination
 
 from .base import BaseVultrV2
-from .enum import ApplicationType
+from .enums import ApplicationType
 
 
 @dataclass
-class ApplicationItem(BaseDataclass):
-    deploy_name: str
-    id: int
-    image_id: str
-    name: str
-    short_name: str
-    type: str
-    vendor: str
+class Application(BaseDataclass):
+    id: int  # A unique ID for the application.
+    name: str  # The application name.
+    short_name: str  # The short application name.
+    deploy_name: str  # A long description of the application.
+    vendor: str  # The application vendor name.
+    image_id: str  # A unique ID for marketplace applications.
+    type: str  # The type of application, see `enums.ApplicationType` for details.
 
 
-class Application(BaseVultrV2):
+class ApplicationAPI(BaseVultrV2):
     """Vultr Application API.
 
     Reference: https://www.vultr.com/zh/api/#tag/application
@@ -33,7 +33,7 @@ class Application(BaseVultrV2):
     while Applications with type of one-click should use the id.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -45,7 +45,7 @@ class Application(BaseVultrV2):
         cursor: str = None,
         app_type: ApplicationType = None,
         capacity: int = None,
-    ) -> VultrPagination[ApplicationItem]:
+    ) -> VultrPagination[Application]:
         """Get a list of all available Applications. This list can be filtered by `app_type`.
 
         Args:
@@ -55,17 +55,17 @@ class Application(BaseVultrV2):
             capacity: The capacity of the VultrPagination[ApplicationItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ApplicationItem]: A list-like object of `ApplicationItem` object.
+            VultrPagination[Application]: A list-like object of `ApplicationItem` object.
         """
         extra_params = {
             "type": app_type and app_type.value,
         }
         fetcher = partial(self._get, endpoint="/applications")
-        return VultrPagination[ApplicationItem](
+        return VultrPagination[Application](
             fetcher=fetcher,
             cursor=cursor,
             page_size=per_page,
-            return_type=ApplicationItem,
+            return_type=Application,
             capacity=capacity,
             **extra_params,
         )

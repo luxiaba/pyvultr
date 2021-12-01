@@ -1,5 +1,5 @@
 from pyvultr.base_api import SupportHttpMethod
-from pyvultr.v2 import BareMetalPlanItem, PlanItem
+from pyvultr.v2 import BareMetalPlanItem, Plan
 from tests.v2 import BaseTestV2
 
 
@@ -8,10 +8,10 @@ class TestPlan(BaseTestV2):
         """Test list plan."""
         with self._get("response/plans") as mock:
             _excepted_result = mock.python_body["plans"][0]
-            excepted_result = PlanItem.from_dict(_excepted_result)
+            excepted_result = Plan.from_dict(_excepted_result)
 
             _real_result = self.api_v2.plan.list()
-            real_result: PlanItem = _real_result.first()
+            real_result: Plan = _real_result.first()
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/plans")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)

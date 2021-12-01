@@ -7,16 +7,17 @@ from pyvultr.v2 import (
     AvailableUpgrade,
     BackupSchedule,
     BandwidthItem,
-    InstanceItem,
+    Instance,
     InstancePrivateNetworkItem,
     IPv4Item,
     IPv6Item,
     IPv6ReverseItem,
     ISOStatus,
+    ReqInstance,
     RestoreStatus,
     UserData,
 )
-from pyvultr.v2.enum import BackupScheduleType
+from pyvultr.v2.enums import BackupScheduleType
 from tests.base import BaseTest
 
 
@@ -25,10 +26,10 @@ class TestInstance(BaseTest):
         """Test list instance."""
         with self._get("response/instances") as mock:
             _excepted_result = mock.python_body["instances"][0]
-            excepted_result = InstanceItem.from_dict(_excepted_result)
+            excepted_result = Instance.from_dict(_excepted_result)
 
             _real_result = self.api_v2.instance.list(capacity=1)
-            real_result: InstanceItem = _real_result.first()
+            real_result: Instance = _real_result.first()
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/instances")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -36,24 +37,28 @@ class TestInstance(BaseTest):
 
     def test_create(self):
         """Test create."""
-        with self._post("response/instance", expected_returned=InstanceItem) as mock:
+        with self._post("response/instance", expected_returned=Instance) as mock:
             excepted_result = mock.python_body
 
-            region = "ams"
-            plan = "test_plan"
-            real_result: InstanceItem = self.api_v2.instance.create(region=region, plan=plan)
+            req = ReqInstance(
+                region="ams",
+                plan="test_plan",
+                os_id=111,
+            )
+            real_result: Instance = self.api_v2.instance.create(instance=req)
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/instances")
             self.assertEqual(mock.method, SupportHttpMethod.POST.value)
+            self.assertEqual(mock.req_json["region"], req.region)
             self.assertEqual(real_result, excepted_result)
 
     def test_get(self):
         """Test get instance."""
-        with self._get("response/instance", expected_returned=InstanceItem) as mock:
+        with self._get("response/instance", expected_returned=Instance) as mock:
             excepted_result = mock.python_body
 
             instance_id = str(uuid.uuid4())
-            real_result: InstanceItem = self.api_v2.instance.get(instance_id=instance_id)
+            real_result: Instance = self.api_v2.instance.get(instance_id=instance_id)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/instances/{instance_id}")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -61,12 +66,12 @@ class TestInstance(BaseTest):
 
     def test_update(self):
         """Test update."""
-        with self._patch("response/instance", expected_returned=InstanceItem) as mock:
+        with self._patch("response/instance", expected_returned=Instance) as mock:
             excepted_result = mock.python_body
 
             instance_id = str(uuid.uuid4())
             plan = "test_plan"
-            real_result: InstanceItem = self.api_v2.instance.update(instance_id=instance_id, plan=plan)
+            real_result: Instance = self.api_v2.instance.update(instance_id=instance_id, plan=plan)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/instances/{instance_id}")
             self.assertEqual(mock.method, SupportHttpMethod.PATCH.value)
@@ -150,11 +155,11 @@ class TestInstance(BaseTest):
 
     def test_reinstall(self):
         """Test reinstall."""
-        with self._post("response/instance", expected_returned=InstanceItem, status_code=202) as mock:
-            excepted_result: InstanceItem = mock.python_body
+        with self._post("response/instance", expected_returned=Instance, status_code=202) as mock:
+            excepted_result: Instance = mock.python_body
 
             instance_id = str(uuid.uuid4())
-            real_result: InstanceItem = self.api_v2.instance.reinstall(instance_id)
+            real_result: Instance = self.api_v2.instance.reinstall(instance_id)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/instances/{instance_id}/reinstall")
             self.assertEqual(mock.method, SupportHttpMethod.POST.value)

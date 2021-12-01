@@ -3,34 +3,34 @@
 import logging
 
 from pyvultr.v2 import (
-    DNS,
-    ISO,
-    Account,
-    Application,
-    Backup,
-    BareMetal,
-    Billing,
-    BlockStorage,
-    Firewall,
-    Instance,
-    Kubernetes,
-    LoadBalance,
-    ObjectStorage,
-    OperatingSystem,
-    Plan,
-    PrivateNetwork,
-    Region,
-    ReservedIP,
-    Snapshot,
-    SSHKey,
-    StartupScript,
-    User,
+    DNSAPI,
+    ISOAPI,
+    AccountAPI,
+    ApplicationAPI,
+    BackupAPI,
+    BareMetalAPI,
+    BillingAPI,
+    BlockStorageAPI,
+    FirewallAPI,
+    InstanceAPI,
+    KubernetesAPI,
+    LoadBalanceAPI,
+    ObjectStorageAPI,
+    OperatingSystemAPI,
+    PlanAPI,
+    PrivateNetworkAPI,
+    RegionAPI,
+    ReservedIPAPI,
+    SnapshotAPI,
+    SSHKeyAPI,
+    StartupScriptAPI,
+    UserAPI,
 )
 
 __author__ = "fishermanadg"
 __copyright__ = "Copyright 2021, The pyvultr Project"
 __license__ = "License: MIT"
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __email__ = "fishermanadg@gmail.com"
 
 
@@ -39,33 +39,31 @@ log = logging.getLogger(__name__)
 
 class VultrV2:
     def __init__(self, api_key: str = None):
-        self.account = Account(api_key)
-        self.application = Application(api_key)
-        self.backup = Backup(api_key)
-        self.bare_metal = BareMetal(api_key)
-        self.billing = Billing(api_key)
-        self.block_storage = BlockStorage(api_key)
-        self.dns = DNS(api_key)
-        self.firewall = Firewall(api_key)
-        self.instance = Instance(api_key)
-        self.iso = ISO(api_key)
-        self.kubernetes = Kubernetes(api_key)
-        self.load_balance = LoadBalance(api_key)
-        self.object_storage = ObjectStorage(api_key)
-        self.operating_system = OperatingSystem(api_key)
-        self.plan = Plan(api_key)
-        self.private_network = PrivateNetwork(api_key)
-        self.region = Region(api_key)
-        self.reserved_ip = ReservedIP(api_key)
-        self.snapshot = Snapshot(api_key)
-        self.ssh_key = SSHKey(api_key)
-        self.startup_script = StartupScript(api_key)
-        self.user = User(api_key)
+        self.account = AccountAPI(api_key)
+        self.application = ApplicationAPI(api_key)
+        self.backup = BackupAPI(api_key)
+        self.bare_metal = BareMetalAPI(api_key)
+        self.billing = BillingAPI(api_key)
+        self.block_storage = BlockStorageAPI(api_key)
+        self.dns = DNSAPI(api_key)
+        self.firewall = FirewallAPI(api_key)
+        self.instance = InstanceAPI(api_key)
+        self.iso = ISOAPI(api_key)
+        self.kubernetes = KubernetesAPI(api_key)
+        self.load_balance = LoadBalanceAPI(api_key)
+        self.object_storage = ObjectStorageAPI(api_key)
+        self.operating_system = OperatingSystemAPI(api_key)
+        self.plan = PlanAPI(api_key)
+        self.private_network = PrivateNetworkAPI(api_key)
+        self.region = RegionAPI(api_key)
+        self.reserved_ip = ReservedIPAPI(api_key)
+        self.snapshot = SnapshotAPI(api_key)
+        self.ssh_key = SSHKeyAPI(api_key)
+        self.startup_script = StartupScriptAPI(api_key)
+        self.user = UserAPI(api_key)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     v2 = VultrV2()
-    c = v2.region.list(capacity=3)
-    first_region = c.first()
-    print(first_region.country, first_region.city)
+    ...

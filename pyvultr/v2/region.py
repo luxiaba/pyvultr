@@ -5,19 +5,19 @@ from urllib.parse import urljoin
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
-from .enum import RegionType
+from .enums import RegionType
 
 
 @dataclass
-class RegionItem(BaseDataclass):
-    id: str
-    country: str
-    options: List[str]
-    continent: str
-    city: str
+class Region(BaseDataclass):
+    id: str  # A unique ID for the Region.
+    country: str  # The two-letter country code for this Region.
+    options: List[str]  # An array of product features available in this Region, eg: ["ddos_protection"]
+    continent: str  # The name of the continent for this Region.
+    city: str  # The name of the city for this Region.
 
 
-class Region(BaseVultrV2):
+class RegionAPI(BaseVultrV2):
     """Vultr Region API.
 
     Reference: https://www.vultr.com/zh/api/#tag/region
@@ -26,7 +26,7 @@ class Region(BaseVultrV2):
     Choose any of our worldwide locations to deploy servers near your office or customers for low-latency.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -37,7 +37,7 @@ class Region(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "regions")
 
-    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[RegionItem]:
+    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[Region]:
         """List all Regions at Vultr.
 
         Args:
@@ -46,13 +46,13 @@ class Region(BaseVultrV2):
             capacity: The capacity of the VultrPagination[RegionItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[RegionItem]: A list-like object of `RegionItem` object.
+            VultrPagination[Region]: A list-like object of `RegionItem` object.
         """
-        return VultrPagination[RegionItem](
+        return VultrPagination[Region](
             fetcher=self._get,
             cursor=cursor,
             page_size=per_page,
-            return_type=RegionItem,
+            return_type=Region,
             capacity=capacity,
         )
 

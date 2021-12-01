@@ -1,8 +1,8 @@
 import uuid
 
 from pyvultr.base_api import SupportHttpMethod
-from pyvultr.v2 import LoadBalanceFirewallRule, LoadBalanceForwardRule, LoadBalanceItem
-from pyvultr.v2.enum import Protocol
+from pyvultr.v2 import LoadBalance, LoadBalanceFirewallRule, LoadBalanceForwardRule
+from pyvultr.v2.enums import LoadBalanceProtocol
 from tests.v2 import BaseTestV2
 
 
@@ -11,10 +11,10 @@ class TestLoanBalance(BaseTestV2):
         """Test list loan balance."""
         with self._get("response/load_balances") as mock:
             _excepted_result = mock.python_body["load_balancers"][0]
-            excepted_result = LoadBalanceItem.from_dict(_excepted_result)
+            excepted_result = LoadBalance.from_dict(_excepted_result)
 
             _real_result = self.api_v2.load_balance.list(capacity=1)
-            real_result: LoadBalanceItem = _real_result.first()
+            real_result: LoadBalance = _real_result.first()
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/load-balancers")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -22,11 +22,11 @@ class TestLoanBalance(BaseTestV2):
 
     def test_create(self):
         """Test create loan balance."""
-        with self._post("response/load_balance", expected_returned=LoadBalanceItem, status_code=201) as mock:
+        with self._post("response/load_balance", expected_returned=LoadBalance, status_code=201) as mock:
             excepted_result = mock.python_body
 
             region = "ams"
-            real_result: LoadBalanceItem = self.api_v2.load_balance.create(region=region)
+            real_result: LoadBalance = self.api_v2.load_balance.create(region=region)
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/load-balancers")
             self.assertEqual(mock.method, SupportHttpMethod.POST.value)
@@ -36,11 +36,11 @@ class TestLoanBalance(BaseTestV2):
 
     def test_get(self):
         """Test get loan balance."""
-        with self._get("response/load_balance", expected_returned=LoadBalanceItem) as mock:
+        with self._get("response/load_balance", expected_returned=LoadBalance) as mock:
             excepted_result = mock.python_body
 
             load_balancer_id = str(uuid.uuid4())
-            real_result: LoadBalanceItem = self.api_v2.load_balance.get(load_balancer_id=load_balancer_id)
+            real_result: LoadBalance = self.api_v2.load_balance.get(load_balancer_id=load_balancer_id)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/load-balancers/{load_balancer_id}")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -50,7 +50,7 @@ class TestLoanBalance(BaseTestV2):
         """Test update loan balance."""
         with self._patch(status_code=204) as mock:
             load_balancer_id = str(uuid.uuid4())
-            real_result: LoadBalanceItem = self.api_v2.load_balance.update(load_balancer_id=load_balancer_id)
+            real_result: LoadBalance = self.api_v2.load_balance.update(load_balancer_id=load_balancer_id)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/load-balancers/{load_balancer_id}")
             self.assertEqual(mock.method, SupportHttpMethod.PATCH.value)
@@ -87,9 +87,9 @@ class TestLoanBalance(BaseTestV2):
             excepted_result = mock.python_body
 
             load_balancer_id = str(uuid.uuid4())
-            frontend_protocol = Protocol.HTTP
+            frontend_protocol = LoadBalanceProtocol.HTTP
             frontend_port = 80
-            backend_protocol = Protocol.HTTP
+            backend_protocol = LoadBalanceProtocol.HTTP
             backend_port = 8080
             real_result: LoadBalanceForwardRule = self.api_v2.load_balance.create_forwarding_rule(
                 load_balancer_id=load_balancer_id,

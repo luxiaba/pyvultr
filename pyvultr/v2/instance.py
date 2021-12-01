@@ -1,82 +1,127 @@
+import logging
 from dataclasses import dataclass
 from functools import partial
 from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
-from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value, merge_args
+from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
-from .enum import BackupScheduleType, InstanceUpgradeType
+from .enums import BackupScheduleType, InstanceUpgradeType
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
-class V6NetworkItem(BaseDataclass):
-    network: str
-    main_ip: str
-    network_size: int
-
-
-@dataclass
-class InstanceItem(BaseDataclass):
-    id: str
-    os: str
-    ram: int
-    disk: int
-    main_ip: str
-    vcpu_count: int
+class ReqInstance(BaseDataclass):
+    # [REQUIRED]
+    # The Region id where the instance is located, check `RegionAPI.list` and `RegionItem.id` for available regions.
     region: str
     plan: str
-    date_created: str
-    status: str
-    allowed_bandwidth: int
-    netmask_v4: str
-    gateway_v4: str
-    power_status: str
-    server_status: str
-    # v6_networks: List[V6NetworkItem]  # check with API
-    v6_network: str  # check with API
-    v6_network_size: int  # check with API
-    v6_main_ip: str
-    label: str
-    internal_ip: str
-    kvm: str
-    hostname: str
-    tag: str
-    os_id: int
-    app_id: int
-    image_id: str
-    firewall_group_id: str
-    features: List[str]
-    default_password: str = None
+
+    # [CHOOSE_ONE] Please choose one source to create instance
+    os_id: int = None  # The Operating System id, check OperatingSystemAPI.list and `OSItem.id` for available OSes.
+    iso_id: str = None  # The ISO id to use when deploying this instance.
+    snapshot_id: str = None  # The Snapshot id to use when deploying the instance.
+    app_id: int = None  # The Application id, check `Application.list` and `ApplicationItem.id` for available options.
+    # The Application image_id, check `Application.list` and `ApplicationItem.image_id` for available options.
+    image_id: str = None
+
+    # [OPTIONAl]
+    ipxe_chain_url: str = None  # The URL location of the iPXE chain loader.
+    script_id: str = None  # The Startup Script id to use when deploying this instance.
+    enable_ipv6: bool = None  # Enable IPv6.
+
+    # An array of Private Network ids to attach to this Instance.
+    # This parameter takes precedence over `enable_private_network`. Please choose one parameter.
+    attach_private_network: List[str] = None
+    # If `true`, private networking support will be added to the new server.
+    # This parameter attaches a single network. When no network exists in the region, it will be automatically created.
+    enable_private_network: bool = None
+
+    label: str = None  # The user-supplied label for this instance.
+    sshkey_id: List[str] = None  # The SSH Key id(create in advance) to install on this instance.
+    backups: str = None  # 'enabled'/'disabled' Enable automatic backups for the instance.
+    user_data: str = None  # The user-supplied, base64 encoded user data to attach to this instance.
+    ddos_protection: bool = None  # Enable DDoS protection (there is an additional charge for this).
+    activation_email: bool = None  # Notify by email after deployment, default is false.
+    hostname: str = None  # Set hostname for this instance.
+    tag: str = None  # Set tag for this instance.
+    firewall_group_id: str = None  # The Firewall Group id to attach to this Instance.
+    reserved_ipv4: str = None  # ID of the floating IP to use as the main IP of this server.
+
+    @property
+    def valid_basic(self) -> bool:
+        """Region and plan are required."""
+        return all((self.region, self.plan))
+
+    @property
+    def valid_source(self) -> bool:
+        """Check whether the data meets the conditions for instance creation."""
+        return any((self.os_id, self.iso_id, self.snapshot_id, self.app_id, self.image_id))
+
+
+@dataclass
+class Instance(BaseDataclass):
+    id: str  # A unique ID for the VPS Instance.
+    os: str  # The Operating System name, check OperatingSystemAPI.list and `OSItem.name` for available OSes.
+    ram: int  # Text description of the instances' RAM.
+    disk: int  # Text description of the instances' disk configuration.
+    main_ip: str  # The main IPv4 address.
+    vcpu_count: int  # Number of vCPUs.
+    # The Region id where the instance is located, check `RegionAPI.list` and `RegionItem.id` for available regions.
+    region: str
+    date_created: str  # The date this instance was created.
+    status: str  # The status of the instance, see `enums.InstanceStatus` for possible values.
+    power_status: str  # The power-on status, see `enums.InstancePowerStatus` for possible values.
+    server_status: str  # The server health status, see `enums.InstanceServerStatus` for possible values.
+    allowed_bandwidth: int  # Monthly bandwidth quota in GB.
+    netmask_v4: str  # The IPv4 netmask in dot-decimal notation.
+    gateway_v4: str  # The gateway IP address.
+    # v6_networks: List[V6NetworkItem]  # TODO check with API(Docs not match with code)
+    v6_network: str  # check with API  # TODO check with API(Docs not match with code)
+    v6_network_size: int  # check with API # TODO check with API(Docs not match with code)
+    v6_main_ip: str  # check with API # TODO check with API(Docs not match with code)
+    hostname: str  # The hostname of the instance.
+    label: str  # The user-supplied label for this instance.
+    tag: str  # The user-supplied tag for this instance.
+    internal_ip: str  # The user data that can be supplied for tools such as cloudinit.
+    kvm: str  # HTTPS link to the Vultr noVNC Web Console.
+    os_id: int  # The Operating System id, check OperatingSystemAPI.list and `OSItem.id` for available OSes.
+    app_id: int  # The Application id, check `Application.list` and `ApplicationItem.id` for available options.
+    firewall_group_id: str  # The Firewall Group id linked to this Instance.
+    features: List[str]  # A list of features enabled on the instance, see `enums.InstanceFeatures` for possible values.
+    plan: str  # A unique ID for the Plan.
+    default_password: str = None  # The default password assigned at deployment.
 
 
 @dataclass
 class BandwidthItem(BaseDataclass):
-    incoming_bytes: int
-    outgoing_bytes: int
+    incoming_bytes: int  # Total bytes received by this instance on the date (UTC) denoted by the object key.
+    outgoing_bytes: int  # Total bytes sent by this instance on the date (UTC) denoted by the object key.
 
 
 @dataclass
 class InstancePrivateNetworkItem(BaseDataclass):
-    network_id: str
-    mac_address: str
-    ip_address: str
+    network_id: str  # TODO check with API(Docs not match with code), network_id or id?
+    ip_address: str  # The assigned IP address.
+    mac_address: str  # The assigned MAC address.
 
 
 @dataclass
 class ISOStatus(BaseDataclass):
-    iso_id: str
-    state: str
+    iso_id: str  # The ISO id, check `ISO.list` and `ISOItem.id` for available options.
+    state: str  # The status of this ISO, check `enums.ISOStatusState` for possible values.
 
 
 @dataclass
 class BackupSchedule(BaseDataclass):
-    enabled: bool
-    type: str
-    next_scheduled_time_utc: str
-    hour: int
-    dow: int
-    dom: int
+    enabled: bool  # Indicates if backup is enabled.
+    type: str  # Type of backup schedule, check `enums.BackupScheduleType` for possible values.
+    next_scheduled_time_utc: str  # Time of next backup run in UTC.
+    hour: int  # Scheduled hour of day in UTC.
+    dow: int  # Day of week to run, possible value: 1-7 (1 is Sunday).
+    dom: int  # Day of month to run. Use values between 1 and 28.
 
 
 @dataclass
@@ -88,41 +133,42 @@ class RestoreStatus(BaseDataclass):
 
 @dataclass
 class IPv4Item(BaseDataclass):
-    ip: str
-    netmask: str
-    gateway: str
-    type: str
-    reverse: str
-    mac_address: str = None
+    ip: str  # The IPv4 address.
+    netmask: str  # The IPv4 netmask in dot-decimal notation.
+    gateway: str  # The gateway IP address.
+    type: str  # The type of IP address, check `enums.IPV4Type` for details.
+    reverse: str  # The reverse DNS information for this IP address.
+    # TODO check with API(Docs not match with code)
+    mac_address: str = None  # The MAC address associated with this IP address.
 
 
 @dataclass
 class IPv6Item(BaseDataclass):
-    ip: str
-    network: str
-    network_size: int
-    type: str
+    ip: str  # A unique ID for the IPv6 address.
+    network: str  # The IPv6 subnet.
+    network_size: int  # The IPv6 network size in bits.
+    type: str  # The type of IP address, check `enums.IPV6Type` for details.
 
 
 @dataclass
 class IPv6ReverseItem(BaseDataclass):
-    reverse: str
-    ip: str
+    reverse: str  # The IPv6 reverse entry.
+    ip: str  # The IPv6 address.
 
 
 @dataclass
 class UserData(BaseDataclass):
-    data: str
+    data: str  # The user-supplied, base64 encoded user data attached to this instance.
 
 
 @dataclass
 class AvailableUpgrade(BaseDataclass):
-    applications: List
-    plans: List
-    os: List
+    applications: List  # Available application upgrades, list of any.
+    os: List  # Available os upgrades, list of any.
+    plans: List  # Available plan upgrades, list of any.
 
 
-class Instance(BaseVultrV2):
+class InstanceAPI(BaseVultrV2):
     """Vultr Instance API.
 
     Reference: https://www.vultr.com/zh/api/#tag/instances
@@ -132,7 +178,7 @@ class Instance(BaseVultrV2):
     your most demanding applications. Dedicated Cloud instances have dedicated CPU, SSD drives, and RAM.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -151,7 +197,7 @@ class Instance(BaseVultrV2):
         label: str = None,
         main_ip: str = None,
         capacity: int = None,
-    ) -> VultrPagination[InstanceItem]:
+    ) -> VultrPagination[Instance]:
         """List all Bare Metal instances in your account.
 
         Args:
@@ -163,23 +209,23 @@ class Instance(BaseVultrV2):
             capacity: The capacity of the VultrPagination[InstanceItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[InstanceItem]: A list-like object of `InstanceItem` object.
+            VultrPagination[Instance]: A list-like object of `InstanceItem` object.
         """
         _extra_params = {
             "tag": tag,
             "label": label,
             "main_ip": main_ip,
         }
-        return VultrPagination[InstanceItem](
+        return VultrPagination[Instance](
             fetcher=self._get,
             cursor=cursor,
             page_size=per_page,
-            return_type=InstanceItem,
+            return_type=Instance,
             capacity=capacity,
             **_extra_params,
         )
 
-    def create(self, region: str, plan: str, **kwargs) -> InstanceItem:
+    def create(self, instance: ReqInstance) -> Optional[Instance]:
         """Create a new VPS Instance in a region with the desired plan.
 
         Choose one of the following to deploy the instance:
@@ -191,33 +237,37 @@ class Instance(BaseVultrV2):
         Supply other attributes as desired.
 
         Args:
-            region: The Region id where the Instance is located.
-            plan: The Plan id to use when deploying this instance.
-            **kwargs: Other attributes to supply when deploying the instance.
+            instance: A ReqInstance object to create instance.
 
         Returns:
-            InstanceItem: A `InstanceItem` object.
+            Instance: A `InstanceItem` object.
         """
-        _fixed_args = {
-            "region": region,
-            "plan": plan,
-        }
-        resp = self._post(json=merge_args(kwargs, _fixed_args))
-        return InstanceItem.from_dict(get_only_value(resp))
+        if not instance.valid_basic:
+            log.error(f"Invalid instance: {instance}, `Region` and `Plan` is required.")
+            return
+        if not instance.valid_source:
+            log.error(
+                f"Invalid instance: {instance}, "
+                f"Please provide at least one: `os_id`, `iso_id`, `image_id`, `snapshot_id`, `app_id`."
+            )
+            return
 
-    def get(self, instance_id: str) -> InstanceItem:
+        resp = self._post(json=instance.to_dict())
+        return Instance.from_dict(get_only_value(resp))
+
+    def get(self, instance_id: str) -> Instance:
         """Get information about an Instance.
 
         Args:
             instance_id: The Instance id.
 
         Returns:
-            InstanceItem: A `InstanceItem` object.
+            Instance: A `InstanceItem` object.
         """
         resp = self._get(f"/{instance_id}")
-        return InstanceItem.from_dict(get_only_value(resp))
+        return Instance.from_dict(get_only_value(resp))
 
-    def update(self, instance_id: str, **kwargs) -> InstanceItem:
+    def update(self, instance_id: str, **kwargs) -> Instance:
         """Update information for an Instance.
 
         All attributes are optional. If not set, the attributes will retain their original values.
@@ -228,10 +278,10 @@ class Instance(BaseVultrV2):
             **kwargs: Other attributes to update.
 
         Returns:
-            InstanceItem: A `InstanceItem` object.
+            Instance: A `InstanceItem` object.
         """
         resp = self._patch(f"/{instance_id}", json=kwargs)
-        return InstanceItem.from_dict(get_only_value(resp))
+        return Instance.from_dict(get_only_value(resp))
 
     def delete(self, instance_id: str):
         """Delete an Instance.
@@ -314,7 +364,7 @@ class Instance(BaseVultrV2):
         """
         return self._post(f"/{instance_id}/reboot")
 
-    def reinstall(self, instance_id: str, hostname: str = None) -> InstanceItem:
+    def reinstall(self, instance_id: str, hostname: str = None) -> Instance:
         """Reinstall an Instance using an optional `hostname`.
 
         Note: This action may take a few extra seconds to complete.
@@ -324,13 +374,13 @@ class Instance(BaseVultrV2):
             hostname: The hostname to use when reinstalling this instance.
 
         Returns:
-            InstanceItem: A `InstanceItem` object.
+            Instance: A `InstanceItem` object.
         """
         _json = {
             "hostname": hostname,
         }
         resp = self._post(f"/{instance_id}/reinstall", json=_json)
-        return InstanceItem.from_dict(get_only_value(resp))
+        return Instance.from_dict(get_only_value(resp))
 
     def get_bandwidth(self, instance_id: str) -> Dict[str, BandwidthItem]:
         """Get bandwidth information about an Instance.

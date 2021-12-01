@@ -9,19 +9,59 @@ from .base import BaseVultrV2
 
 
 @dataclass
-class ClusterNodePool(BaseDataclass):
+class ReqClusterNodePool(BaseDataclass):
+    # Number of instances to deploy in this node-pool.
+    # Minimum of 1 node required, but at least 3 is recommended.
     node_quantity: int
+    # Label for this node-pool. You cannot change the label after a node-pool is created.
+    # You cannot have duplicate node pool labels in the same cluster.
     label: str
-    plan: str
-    tag: str = None
+    plan: str  # Plan you want this node-pool to use. Note: minimum plan must be $10.
+    tag: str = None  # Tag for node pool
+
+
+@dataclass
+class ClusterNode(BaseDataclass):
+    id: str  # ID of the node-pool instance.
+    label: str  # Label of the node-pool instance.
+    date_created: str  # Date of creation.
+    status: str = None  # TODO Check with API (Docs not match with code)
+
+
+@dataclass
+class ClusterNodePoolFull(BaseDataclass):
+    id: str  # The NodePool ID, check `ClusterNodePool` for details.
+    date_created: str  # Date of creation.
+    date_updated: str  # Date of last update.
+    label: str  # Label for node pool.
+    tag: str  # Tag for node pool
+    plan: str  # Plan used for node-pool.
+    status: str  # Status for node-pool. enums?
+    node_quantity: int  # Number of nodes in node-pool.
+    nodes: List[ClusterNode]  # List of nodes in node-pool.
+
+
+@dataclass
+class Cluster(BaseDataclass):
+    id: str  # ID for the VKE cluster.
+    label: str  # Label for your cluster.
+    date_created: str  # Date of creation.
+    cluster_subnet: str  # IP range that your pods will run on in this cluster.
+    service_subnet: str  # IP range that services will run on this cluster.
+    ip: str  # IP for your Kubernetes Clusters Control Plane.
+    endpoint: str  # Domain for your Kubernetes Clusters Control Plane.
+    version: str  # Version of Kubernetes this cluster is running on.
+    region: str  # Region this Kubernetes Cluster is running in.
+    status: str  # Status for VKE cluster.
+    node_pools: List[ClusterNodePoolFull]  # List of node pools in this cluster.
 
 
 @dataclass
 class ClusterResourceItem(BaseDataclass):
-    id: str
-    label: str
-    date_created: str
-    status: str
+    id: str  # Unique identifier for the block storage volume.
+    label: str  # Label given to the block storage volume.
+    date_created: str  # Date the block storage volume was created.
+    status: str  # Status of the block storage volume.
 
 
 @dataclass
@@ -30,43 +70,7 @@ class ClusterResource(BaseDataclass):
     load_balancer: List[ClusterResourceItem]
 
 
-@dataclass
-class ClusterNode(BaseDataclass):
-    id: str
-    label: str
-    date_created: str
-    status: str
-
-
-@dataclass
-class ClusterNodePoolFull(BaseDataclass):
-    id: str
-    date_created: str
-    date_updated: str
-    label: str
-    tag: str
-    plan: str
-    status: str
-    node_quantity: int
-    nodes: List[ClusterNode]
-
-
-@dataclass
-class ClusterItem(BaseDataclass):
-    id: str
-    label: str
-    date_created: str
-    cluster_subnet: str
-    service_subnet: str
-    ip: str
-    endpoint: str
-    version: str
-    region: str
-    status: str
-    node_pools: List[ClusterNodePoolFull]
-
-
-class Kubernetes(BaseVultrV2):
+class KubernetesAPI(BaseVultrV2):
     """Vultr Kubernetes API.
 
     Reference: https://www.vultr.com/zh/api/#tag/kubernetes
@@ -74,7 +78,7 @@ class Kubernetes(BaseVultrV2):
     Vultr Kubernetes Engine is a managed Kubernetes offering.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -85,7 +89,7 @@ class Kubernetes(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "kubernetes")
 
-    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[ClusterItem]:
+    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[Cluster]:
         """List all Kubernetes clusters currently deployed.
 
         Args:
@@ -94,18 +98,18 @@ class Kubernetes(BaseVultrV2):
             capacity: The capacity of the VultrPagination[ClusterItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ClusterItem]: A list-like object of `ClusterItem` object.
+            VultrPagination[Cluster]: A list-like object of `ClusterItem` object.
         """
         fetcher = partial(self._get, endpoint="/clusters")
-        return VultrPagination[ClusterItem](
+        return VultrPagination[Cluster](
             fetcher=fetcher,
             cursor=cursor,
             page_size=per_page,
-            return_type=ClusterItem,
+            return_type=Cluster,
             capacity=capacity,
         )
 
-    def create(self, region: str, version: str, label: str = None, pools: List[ClusterNodePool] = None) -> ClusterItem:
+    def create(self, region: str, version: str, label: str = None, pools: List[ReqClusterNodePool] = None) -> Cluster:
         """Create Kubernetes Cluster.
 
         Args:
@@ -115,7 +119,7 @@ class Kubernetes(BaseVultrV2):
             pools: List[ClusterNodePool]
 
         Returns:
-            ClusterItem: A `ClusterItem` object.
+            Cluster: A `ClusterItem` object.
         """
         _json = {
             "region": region,
@@ -124,19 +128,19 @@ class Kubernetes(BaseVultrV2):
             "node_pools": pools and [asdict(i) for i in pools],
         }
         resp = self._post("/clusters", json=_json)
-        return ClusterItem.from_dict(get_only_value(resp))
+        return Cluster.from_dict(get_only_value(resp))
 
-    def get(self, vke_id: str) -> ClusterItem:
+    def get(self, vke_id: str) -> Cluster:
         """Get Kubernetes Cluster.
 
         Args:
             vke_id: The Cluster ID.
 
         Returns:
-            ClusterItem: A `ClusterItem` object.
+            Cluster: A `ClusterItem` object.
         """
         resp = self._get(f"/clusters/{vke_id}")
-        return ClusterItem.from_dict(get_only_value(resp))
+        return Cluster.from_dict(get_only_value(resp))
 
     def update(self, vke_id: str, label: str):
         """Update Kubernetes Cluster.
@@ -217,7 +221,7 @@ class Kubernetes(BaseVultrV2):
             capacity=capacity,
         )
 
-    def create_node_pool(self, vke_id: str, node_pool: ClusterNodePool) -> ClusterNodePoolFull:
+    def create_node_pool(self, vke_id: str, node_pool: ReqClusterNodePool) -> ClusterNodePoolFull:
         """Create NodePool for a Existing Kubernetes Cluster.
 
         Args:

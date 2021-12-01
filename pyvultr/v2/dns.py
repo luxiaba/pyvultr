@@ -6,33 +6,33 @@ from urllib.parse import urljoin
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
-from .enum import DNSRecordType
+from .enums import DNSRecordType
 
 
 @dataclass
 class Domain(BaseDataclass):
-    domain: str
-    dns_sec: str
-    date_created: str = None
+    domain: str  # Your registered domain name.
+    dns_sec: str  # The domain's DNSSEC status, see `enums.DomainDNSSECStatus` for details.
+    date_created: str = None  # Date the DNS Domain was created.
 
 
 @dataclass
 class SOA(BaseDataclass):
-    nsprimary: str
-    email: str
+    nsprimary: str  # Primary nameserver for this domain.
+    email: str  # Domain contact email address.
 
 
 @dataclass
 class DNSRecord(BaseDataclass):
-    id: str
-    type: str
-    name: str
-    data: str
-    priority: int
-    ttl: int
+    id: str  # A unique ID for the DNS Record.
+    type: str  # The DNS record type, see `enums.DNSRecordType` for details.
+    name: str  # The hostname for this DNS record.
+    data: str  # The DNS data for this record type.
+    priority: int  # DNS priority. Does not apply to all record types.
+    ttl: int  # Time to Live in seconds.
 
 
-class DNS(BaseVultrV2):
+class DNSAPI(BaseVultrV2):
     """Vultr DNS API.
 
     Reference: https://www.vultr.com/zh/api/#tag/dns
@@ -42,7 +42,7 @@ class DNS(BaseVultrV2):
     When you manage your DNS through the API, you can view the results in your customer portal.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):

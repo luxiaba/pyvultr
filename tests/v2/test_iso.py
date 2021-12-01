@@ -1,7 +1,7 @@
 import uuid
 
 from pyvultr.base_api import SupportHttpMethod
-from pyvultr.v2 import ISOItem, PublicISOItem
+from pyvultr.v2 import ISO, PublicISOItem
 from tests.v2 import BaseTestV2
 
 
@@ -10,10 +10,10 @@ class TestISO(BaseTestV2):
         """Test list iso list."""
         with self._get("response/iso_list") as mock:
             _excepted_result = mock.python_body["isos"][0]
-            excepted_result = ISOItem.from_dict(_excepted_result)
+            excepted_result = ISO.from_dict(_excepted_result)
 
             _real_result = self.api_v2.iso.list(capacity=1)
-            real_result: ISOItem = _real_result.first()
+            real_result: ISO = _real_result.first()
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/iso")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -21,11 +21,11 @@ class TestISO(BaseTestV2):
 
     def test_create(self):
         """Test create iso."""
-        with self._post("response/iso", expected_returned=ISOItem, status_code=201) as mock:
+        with self._post("response/iso", expected_returned=ISO, status_code=201) as mock:
             excepted_result = mock.python_body
 
             url = "test_url"
-            real_result: ISOItem = self.api_v2.iso.create(url=url)
+            real_result: ISO = self.api_v2.iso.create(url=url)
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/iso")
             self.assertEqual(mock.method, SupportHttpMethod.POST.value)
@@ -35,11 +35,11 @@ class TestISO(BaseTestV2):
 
     def test_get(self):
         """Test get iso."""
-        with self._get("response/iso", expected_returned=ISOItem) as mock:
+        with self._get("response/iso", expected_returned=ISO) as mock:
             excepted_result = mock.python_body
 
             iso_id = str(uuid.uuid4())
-            real_result: ISOItem = self.api_v2.iso.get(iso_id=iso_id)
+            real_result: ISO = self.api_v2.iso.get(iso_id=iso_id)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/iso/{iso_id}")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)

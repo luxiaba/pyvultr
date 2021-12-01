@@ -5,20 +5,20 @@ from urllib.parse import urljoin
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
-from .enum import StartupScriptType
+from .enums import StartupScriptType
 
 
 @dataclass
-class StartupScriptItem(BaseDataclass):
-    id: str
-    date_created: str
-    date_modified: str
-    name: str
-    type: str
-    script: str = None
+class StartupScript(BaseDataclass):
+    id: str  # A unique ID for the Startup Script.
+    date_created: str  # The date the Startup Script was created.
+    date_modified: str  # The date the Startup Script was last modified.
+    name: str  # The user-supplied name of the Startup Script.
+    type: str  # The Startup Script type,, see `enums.StartupScriptType` for possible values.
+    script: str = None  # The base-64 encoded Startup Script.
 
 
-class StartupScript(BaseVultrV2):
+class StartupScriptAPI(BaseVultrV2):
     """Vultr StartupScript API.
 
     Reference: https://www.vultr.com/zh/api/#tag/startup
@@ -28,7 +28,7 @@ class StartupScript(BaseVultrV2):
     Assign startup scripts to your servers through the API or on your Startup Scripts page in the customer portal.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -44,7 +44,7 @@ class StartupScript(BaseVultrV2):
         per_page: int = None,
         cursor: str = None,
         capacity: int = None,
-    ) -> VultrPagination[StartupScriptItem]:
+    ) -> VultrPagination[StartupScript]:
         """Get a list of all Startup Scripts.
 
         Args:
@@ -53,18 +53,18 @@ class StartupScript(BaseVultrV2):
             capacity: The capacity of the VultrPagination[StartupScriptItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[StartupScriptItem]: A list-like object of `StartupScriptItem` object.
+            VultrPagination[StartupScript]: A list-like object of `StartupScriptItem` object.
 
         """
-        return VultrPagination[StartupScriptItem](
+        return VultrPagination[StartupScript](
             fetcher=self._get,
             cursor=cursor,
             page_size=per_page,
-            return_type=StartupScriptItem,
+            return_type=StartupScript,
             capacity=capacity,
         )
 
-    def create(self, name: str, script: str, script_type: StartupScriptType = None) -> StartupScriptItem:
+    def create(self, name: str, script: str, script_type: StartupScriptType = None) -> StartupScript:
         """Create a new Startup Script.
 
         The `name` and `script` attributes are required, and scripts are base-64 encoded.
@@ -75,7 +75,7 @@ class StartupScript(BaseVultrV2):
             script_type: The Startup Script type.
 
         Returns:
-            StartupScriptItem: The Startup Script item.
+            StartupScript: The Startup Script item.
         """
         _json = {
             "name": name,
@@ -83,19 +83,19 @@ class StartupScript(BaseVultrV2):
             "type": script_type and script_type.value,
         }
         resp = self._post(json=_json)
-        return StartupScriptItem.from_dict(data=get_only_value(resp))
+        return StartupScript.from_dict(data=get_only_value(resp))
 
-    def get(self, startup_id: str) -> StartupScriptItem:
+    def get(self, startup_id: str) -> StartupScript:
         """Get information for a Startup Script.
 
         Args:
             startup_id: The Startup Script id.
 
         Returns:
-            StartupScriptItem: The Startup Script item.
+            StartupScript: The Startup Script item.
         """
         resp = self._get(f"/{startup_id}")
-        return StartupScriptItem.from_dict(data=get_only_value(resp))
+        return StartupScript.from_dict(data=get_only_value(resp))
 
     def update(self, startup_id: str, name: str = None, script: str = None, script_type: StartupScriptType = None):
         """Update a Startup Script.

@@ -8,17 +8,17 @@ from .base import BaseVultrV2
 
 
 @dataclass
-class SnapshotItem(BaseDataclass):
-    id: str
-    date_created: str
-    description: str
-    size: int
-    status: str
-    os_id: int
-    app_id: int
+class Snapshot(BaseDataclass):
+    id: str  # A unique ID for the Snapshot.
+    date_created: str  # The date this snapshot was created.
+    description: str  # The user-supplied description of the Snapshot.
+    size: int  # The snapshot size in bytes.
+    status: str  # The Snapshot status, see `enums.SnapshotStatus` for possible values.
+    os_id: int  # The Operating System id, check OperatingSystemAPI.list and `OSItem.id` for available OSes.
+    app_id: int  # The Application id, check `Application.list` and `ApplicationItem.id` for available options.
 
 
-class Snapshot(BaseVultrV2):
+class SnapshotAPI(BaseVultrV2):
     """Vultr Snapshot API.
 
     Reference: https://www.vultr.com/zh/api/#tag/snapshot
@@ -29,7 +29,7 @@ class Snapshot(BaseVultrV2):
     See our Snapshot Quickstart Guide for more information.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -40,7 +40,7 @@ class Snapshot(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "snapshots")
 
-    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[SnapshotItem]:
+    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[Snapshot]:
         """Get information about all Snapshots in your account.
 
         Args:
@@ -49,17 +49,17 @@ class Snapshot(BaseVultrV2):
             capacity: The capacity of the VultrPagination[SnapshotItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[SnapshotItem]: A list-like object of `SnapshotItem` object.
+            VultrPagination[Snapshot]: A list-like object of `SnapshotItem` object.
         """
-        return VultrPagination[SnapshotItem](
+        return VultrPagination[Snapshot](
             fetcher=self._get,
             cursor=cursor,
             page_size=per_page,
-            return_type=SnapshotItem,
+            return_type=Snapshot,
             capacity=capacity,
         )
 
-    def create(self, instance_id: str, description: str = None) -> SnapshotItem:
+    def create(self, instance_id: str, description: str = None) -> Snapshot:
         """Create a new Snapshot for `instance_id`.
 
         Args:
@@ -67,41 +67,41 @@ class Snapshot(BaseVultrV2):
             description: The user-supplied description of the Snapshot.
 
         Returns:
-            SnapshotItem: The Snapshot object.
+            Snapshot: The Snapshot object.
         """
         _json = {
             "instance_id": instance_id,
             "description": description,
         }
         resp = self._post(json=_json)
-        return SnapshotItem.from_dict(get_only_value(resp))
+        return Snapshot.from_dict(get_only_value(resp))
 
-    def create_from_url(self, url: str) -> SnapshotItem:
+    def create_from_url(self, url: str) -> Snapshot:
         """Create a new Snapshot from a RAW image located at `url`.
 
         Args:
             url: The public URL containing a RAW image.
 
         Returns:
-            SnapshotItem: The Snapshot object.
+            Snapshot: The Snapshot object.
         """
         _json = {
             "url": url,
         }
         resp = self._post("/create-from-url", json=_json)
-        return SnapshotItem.from_dict(get_only_value(resp))
+        return Snapshot.from_dict(get_only_value(resp))
 
-    def get(self, snapshot_id: str) -> SnapshotItem:
+    def get(self, snapshot_id: str) -> Snapshot:
         """Get information about a Snapshot.
 
         Args:
             snapshot_id: The Snapshot ID.
 
         Returns:
-            SnapshotItem: The Snapshot object.
+            Snapshot: The Snapshot object.
         """
         resp = self._get(f"/{snapshot_id}")
-        return SnapshotItem.from_dict(get_only_value(resp))
+        return Snapshot.from_dict(get_only_value(resp))
 
     def update(self, snapshot_id: str, description: str):
         """Update the description for a Snapshot.

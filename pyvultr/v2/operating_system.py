@@ -8,14 +8,14 @@ from .base import BaseVultrV2
 
 
 @dataclass
-class OSItem(BaseDataclass):
-    id: int
-    name: str
-    arch: str
-    family: str
+class OS(BaseDataclass):
+    id: int  # The Operating System id.
+    name: str  # The Operating System description.
+    arch: str  # The Operating System architecture.
+    family: str  # The Operating System family.
 
 
-class OperatingSystem(BaseVultrV2):
+class OperatingSystemAPI(BaseVultrV2):
     """Vultr OS API.
 
     Reference: https://www.vultr.com/zh/api/#tag/os
@@ -24,13 +24,13 @@ class OperatingSystem(BaseVultrV2):
     You can also upload an ISO or choose from our public ISO library.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
         super().__init__(api_key)
 
-    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[OSItem]:
+    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[OS]:
         """List the OS images available for installation at Vultr.
 
         Args:
@@ -39,13 +39,13 @@ class OperatingSystem(BaseVultrV2):
             capacity: The capacity of the VultrPagination[OSItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[OSItem]: A list-like object of `OSItem` object.
+            VultrPagination[OS]: A list-like object of `OSItem` object.
         """
         fetcher = partial(self._get, endpoint="/os")
-        return VultrPagination[OSItem](
+        return VultrPagination[OS](
             fetcher=fetcher,
             cursor=cursor,
             page_size=per_page,
-            return_type=OSItem,
+            return_type=OS,
             capacity=capacity,
         )

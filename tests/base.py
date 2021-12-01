@@ -74,7 +74,7 @@ class MockRequest:
     def __enter__(self):
         """Begins the request mocking."""
         self.patch = patch(
-            "pyvultr.base_api.requests.request",
+            "pyvultr.base_api.requests.Session.request",
             return_value=MockResponse(json_body=self.body, status_code=self.status_code, headers=self.headers),
         )
         self.mock = self.patch.start()

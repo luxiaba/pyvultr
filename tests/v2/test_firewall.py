@@ -2,7 +2,7 @@ import uuid
 
 from pyvultr.base_api import SupportHttpMethod
 from pyvultr.v2 import FirewallGroup, FirewallRule
-from pyvultr.v2.enum import FirewallProtocol, IPType
+from pyvultr.v2.enums import FirewallProtocol, IPType
 from tests.v2 import BaseTestV2
 
 

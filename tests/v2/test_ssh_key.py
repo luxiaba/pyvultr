@@ -1,7 +1,7 @@
 import uuid
 
 from pyvultr.base_api import SupportHttpMethod
-from pyvultr.v2 import SSHKeyItem
+from pyvultr.v2 import SSHKey
 from tests.v2 import BaseTestV2
 
 
@@ -10,10 +10,10 @@ class TestSSHKey(BaseTestV2):
         """Test list ssh-keys."""
         with self._get("response/ssh_keys") as mock:
             _excepted_result = mock.python_body["ssh_keys"][0]
-            excepted_result = SSHKeyItem.from_dict(_excepted_result)
+            excepted_result = SSHKey.from_dict(_excepted_result)
 
             _real_result = self.api_v2.ssh_key.list(capacity=1)
-            real_result: SSHKeyItem = _real_result.first()
+            real_result: SSHKey = _real_result.first()
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/ssh-keys")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -21,12 +21,12 @@ class TestSSHKey(BaseTestV2):
 
     def test_create(self):
         """Test create ssh-key."""
-        with self._post("response/ssh_key", expected_returned=SSHKeyItem, status_code=201) as mock:
+        with self._post("response/ssh_key", expected_returned=SSHKey, status_code=201) as mock:
             excepted_result = mock.python_body
 
             name = "test_name"
             ssh_key = "test_ssh_key"
-            real_result: SSHKeyItem = self.api_v2.ssh_key.create(name=name, ssh_key=ssh_key)
+            real_result: SSHKey = self.api_v2.ssh_key.create(name=name, ssh_key=ssh_key)
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/ssh-keys")
             self.assertEqual(mock.method, SupportHttpMethod.POST.value)
@@ -37,11 +37,11 @@ class TestSSHKey(BaseTestV2):
 
     def test_get(self):
         """Test get ssh-key."""
-        with self._get("response/ssh_key", expected_returned=SSHKeyItem) as mock:
+        with self._get("response/ssh_key", expected_returned=SSHKey) as mock:
             excepted_result = mock.python_body
 
             ssh_key_id = str(uuid.uuid4())
-            real_result: SSHKeyItem = self.api_v2.ssh_key.get(ssh_key_id=ssh_key_id)
+            real_result: SSHKey = self.api_v2.ssh_key.get(ssh_key_id=ssh_key_id)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/ssh-keys/{ssh_key_id}")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -52,7 +52,7 @@ class TestSSHKey(BaseTestV2):
         with self._patch(status_code=204) as mock:
             ssh_key_id = str(uuid.uuid4())
             ssh_key = "test_ssh_key_2"
-            real_result: SSHKeyItem = self.api_v2.ssh_key.update(ssh_key_id, ssh_key=ssh_key)
+            real_result: SSHKey = self.api_v2.ssh_key.update(ssh_key_id, ssh_key=ssh_key)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/ssh-keys/{ssh_key_id}")
             self.assertEqual(mock.method, SupportHttpMethod.PATCH.value)

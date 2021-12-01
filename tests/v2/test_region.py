@@ -1,7 +1,7 @@
 from typing import List
 
-from pyvultr.v2 import RegionItem
-from pyvultr.v2.enum import RegionType
+from pyvultr.v2 import Region
+from pyvultr.v2.enums import RegionType
 from tests.v2 import BaseTestV2
 
 
@@ -9,7 +9,7 @@ class TestRegion(BaseTestV2):
     def test_list(self):
         """Test list plan."""
         real_result = self.api_v2.region.list(capacity=1)
-        region: RegionItem = real_result.first()
+        region: Region = real_result.first()
 
         self.assertEqual(region.id, "ams")
         self.assertEqual(region.country, "NL")

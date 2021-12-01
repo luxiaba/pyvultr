@@ -8,19 +8,22 @@ from .base import BaseVultrV2
 
 
 @dataclass
-class BlockStorageItem(BaseDataclass):
-    id: str
-    cost: float
-    status: str
-    size_gb: int
+class BlockStorage(BaseDataclass):
+    id: str  # A unique ID for the Block Storage.
+    cost: float  # The monthly cost of this Block Storage.
+    status: str  # The current status of this Block Storage, see `enums.BlockStorageStatus` for details.
+    size_gb: int  # Size of the Block Storage in GB.
+    # The Region id where the block is located, check `RegionAPI.list` and `RegionItem.id` for available regions.
     region: str
+    # The Instance id with this Block Storage attached, check `InstanceItem.id` for available instances.
     attached_to_instance: str
-    date_created: str
-    label: str
+    date_created: str  # The date this Block Storage was created.
+    label: str  # The user-supplied label.
+    # An ID associated with the instance, when mounted the ID can be found in /dev/disk/by-id prefixed with virtio.
     mount_id: str
 
 
-class BlockStorage(BaseVultrV2):
+class BlockStorageAPI(BaseVultrV2):
     """Vultr BlockStorage API.
 
     Reference: https://www.vultr.com/zh/api/#tag/block
@@ -29,7 +32,7 @@ class BlockStorage(BaseVultrV2):
     Block storage volumes can be formatted with your choice of filesystems and moved between server instances as needed.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -40,7 +43,7 @@ class BlockStorage(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "blocks")
 
-    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[BlockStorageItem]:
+    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[BlockStorage]:
         """List all Block Storage in your account.
 
         Args:
@@ -49,17 +52,17 @@ class BlockStorage(BaseVultrV2):
             capacity: The capacity of the VultrPagination[BlockStorageItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[BlockStorageItem]: A list-like object of `BlockStorageItem` object.
+            VultrPagination[BlockStorage]: A list-like object of `BlockStorageItem` object.
         """
-        return VultrPagination[BlockStorageItem](
+        return VultrPagination[BlockStorage](
             fetcher=self._get,
             cursor=cursor,
             page_size=per_page,
-            return_type=BlockStorageItem,
+            return_type=BlockStorage,
             capacity=capacity,
         )
 
-    def create(self, region: str, size_gb: int, label: str = None) -> BlockStorageItem:
+    def create(self, region: str, size_gb: int, label: str = None) -> BlockStorage:
         """Create new Block Storage in a `region` with a size of `size_gb`. Size may range between 10 and 10000.
 
         Args:
@@ -68,7 +71,7 @@ class BlockStorage(BaseVultrV2):
             label: The user-supplied label.
 
         Returns:
-            BlockStorageItem: A `BlockStorageItem` object.
+            BlockStorage: A `BlockStorageItem` object.
         """
         _json = {
             "region": region,
@@ -76,19 +79,19 @@ class BlockStorage(BaseVultrV2):
             "label": label,
         }
         resp = self._post(json=_json)
-        return BlockStorageItem.from_dict(get_only_value(resp))
+        return BlockStorage.from_dict(get_only_value(resp))
 
-    def get(self, block_id: str) -> BlockStorageItem:
+    def get(self, block_id: str) -> BlockStorage:
         """Get information for Block Storage.
 
         Args:
             block_id: The Block Storage id.
 
         Returns:
-            BlockStorageItem: A `BlockStorageItem` object.
+            BlockStorage: A `BlockStorageItem` object.
         """
         resp = self._get(f"/{block_id}")
-        return BlockStorageItem.from_dict(get_only_value(resp))
+        return BlockStorage.from_dict(get_only_value(resp))
 
     def update(self, block_id: str, size_gb: int = None, label: str = None):
         """Update information for Block Storage.

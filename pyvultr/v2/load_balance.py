@@ -6,64 +6,81 @@ from urllib.parse import urljoin
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value, merge_args
 
 from .base import BaseVultrV2
-from .enum import Protocol
+from .enums import LoadBalanceAlgorithm, LoadBalanceProtocol
 
 
 @dataclass
 class LoadBalanceGenericInfo(BaseDataclass):
-    balancing_algorithm: str
+    # If true, this will redirect all HTTP traffic to HTTPS.
+    # You must have an HTTPS rule and SSL certificate installed on the load balancer to enable this option.
     ssl_redirect: bool
-    sticky_sessions: Dict
-    proxy_protocol: bool
+    sticky_sessions: Dict  # Array of sticky session cookies({'cookie_name': 'xxx'}).
+    # ID of the private network you wish to use.
+    # If private_network is omitted it will default to the public network.
     private_network: str
+    # The balancing algorithm, see `enums.LoadBalanceAlgorithm` for possible values.
+    balancing_algorithm: str = LoadBalanceAlgorithm.ROUND_ROBIN.value
+    # If true, you must configure backend nodes to accept Proxy protocol. default is false.
+    proxy_protocol: bool = False
 
 
 @dataclass
 class LoadBalanceHealthCheck(BaseDataclass):
-    protocol: str
-    port: int
-    path: str
-    check_interval: int
-    response_timeout: int
-    unhealthy_threshold: int
-    healthy_threshold: int
+    protocol: str  # The protocol to use for health checks, see `enums.LoadBalanceProtocol` for possible values.
+    port: int  # The port to use for health checks.
+    path: str  # HTTP Path to check. Only applies if Protocol is HTTP or HTTPS.
+    check_interval: int  # Interval between health checks.
+    response_timeout: int  # Timeout before health check fails.
+    unhealthy_threshold: int  # Number times a check must fail before becoming unhealthy.
+    healthy_threshold: int  # Number of times a check must succeed before returning to healthy status.
 
 
 @dataclass
 class LoadBalanceForwardRule(BaseDataclass):
-    id: str
+    id: str  # A unique ID for the forwarding rule.
+    # The protocol on the Load Balancer to forward to the backend.
+    # see `enums.LoadBalanceProtocol` for possible values.
     frontend_protocol: str
-    frontend_port: int
+    frontend_port: int  # The port number on the Load Balancer to forward to the backend.
+    # The protocol destination on the backend server.
+    # see `enums.LoadBalanceProtocol` for possible values.
     backend_protocol: str
-    backend_port: int
+    backend_port: int  # The port number destination on the backend server.
 
 
 @dataclass
 class LoadBalanceFirewallRule(BaseDataclass):
-    id: str
-    port: int
+    id: str  # A unique ID for the firewall rule.
+    port: int  # Port for this rule.
+    # If the source string is given a value of "cloudflare" then cloudflare IPs will be supplied.
+    # Otherwise enter a IP address with subnet size that you wish to permit through the firewall.
+    # | Value            | Description
+    # | ---------------- | -----------
+    # | "192.168.1.1/16" | Ip address with a subnet size.
+    # | "cloudflare"     | Allow all of Cloudflare's IP space through the firewall
     source: str
-    ip_type: str
+    ip_type: str  # The type of IP rule, see `enums.IPType` for possible values.
 
 
 @dataclass
-class LoadBalanceItem(BaseDataclass):
-    id: str
-    date_created: str
+class LoadBalance(BaseDataclass):
+    id: str  # A unique ID for the Load Balancer.
+    date_created: str  # Date this Load Balancer was created.
+    # The Region id where the instance is located, check `RegionAPI.list` and `RegionItem.id` for available regions.
     region: str
-    label: str
-    status: str
-    ipv4: str
-    ipv6: str
-    generic_info: LoadBalanceGenericInfo
+    label: str  # The user-supplied label for this load-balancer.
+    status: str  # The current status, see `enums.LoadBalanceStatus` for possible values.
+    ipv4: str  # The IPv4 address of this Load Balancer.
+    ipv6: str  # The IPv6 address of this Load Balancer.
+    generic_info: LoadBalanceGenericInfo  # An object containing additional options.
     health_check: LoadBalanceHealthCheck
-    has_ssl: bool
-    forwarding_rules: List[LoadBalanceForwardRule]
-    instances: List[str]
-    firewall_rules: List[LoadBalanceFirewallRule]
+    has_ssl: bool  # Indicates if this Load Balancer has an SSL certificate installed.
+    forwarding_rules: List[LoadBalanceForwardRule]  # An array of forwarding rule objects.
+    instances: List[str]  # Array of Instance ids attached to this Load Balancer.
+    firewall_rules: List[LoadBalanceFirewallRule]  # An array of firewall rule objects.
 
 
-class LoadBalance(BaseVultrV2):
+class LoadBalanceAPI(BaseVultrV2):
     """Vultr LoanBalance API.
 
     Reference: https://www.vultr.com/zh/api/#tag/load-balancer
@@ -72,7 +89,7 @@ class LoadBalance(BaseVultrV2):
     When you control the load balancer via the API, you can inspect the results in the customer portal.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -83,7 +100,7 @@ class LoadBalance(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "load-balancers")
 
-    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[LoadBalanceItem]:
+    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[LoadBalance]:
         """List the Load Balancers in your account.
 
         Args:
@@ -92,17 +109,17 @@ class LoadBalance(BaseVultrV2):
             capacity: The capacity of the VultrPagination[LoadBalanceItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[LoadBalanceItem]: A list-like object of `LoadBalanceItem` object.
+            VultrPagination[LoadBalance]: A list-like object of `LoadBalanceItem` object.
         """
-        return VultrPagination[LoadBalanceItem](
+        return VultrPagination[LoadBalance](
             fetcher=self._get,
             cursor=cursor,
             page_size=per_page,
-            return_type=LoadBalanceItem,
+            return_type=LoadBalance,
             capacity=capacity,
         )
 
-    def create(self, region: str, **kwargs) -> LoadBalanceItem:
+    def create(self, region: str, **kwargs) -> LoadBalance:
         """Create a new Load Balancer in a particular `region`.
 
         Args:
@@ -110,23 +127,23 @@ class LoadBalance(BaseVultrV2):
             **kwargs: New LoanBalance parameters.
 
         Returns:
-            LoadBalanceItem: The LoadBalanceItem object.
+            LoadBalance: The LoadBalanceItem object.
         """
         _fixed_kwargs = {"region": region}
         resp = self._post(json=merge_args(kwargs, _fixed_kwargs))
-        return LoadBalanceItem.from_dict(get_only_value(resp))
+        return LoadBalance.from_dict(get_only_value(resp))
 
-    def get(self, load_balancer_id: str) -> LoadBalanceItem:
+    def get(self, load_balancer_id: str) -> LoadBalance:
         """Get information for a Load Balancer.
 
         Args:
             load_balancer_id: The Loan Balance id.
 
         Returns:
-            LoadBalanceItem: The LoadBalanceItem object.
+            LoadBalance: The LoadBalanceItem object.
         """
         resp = self._get(f"/{load_balancer_id}")
-        return LoadBalanceItem.from_dict(get_only_value(resp))
+        return LoadBalance.from_dict(get_only_value(resp))
 
     def update(self, load_balancer_id: str, **kwargs):
         """Update information for a Load Balancer.
@@ -185,9 +202,9 @@ class LoadBalance(BaseVultrV2):
     def create_forwarding_rule(
         self,
         load_balancer_id: str,
-        frontend_protocol: Protocol,
+        frontend_protocol: LoadBalanceProtocol,
         frontend_port: int,
-        backend_protocol: Protocol,
+        backend_protocol: LoadBalanceProtocol,
         backend_port: int,
     ) -> LoadBalanceForwardRule:
         """Create a new forwarding rule for a Load Balancer.

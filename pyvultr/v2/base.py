@@ -16,7 +16,7 @@ class BaseVultrV2(BaseVultrAPI):
     """Vultr Base V2 API.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: str = None):
