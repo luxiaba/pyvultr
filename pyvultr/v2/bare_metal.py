@@ -52,7 +52,7 @@ class ReqBareMetal(BaseDataclass):
 class BareMetal(BaseDataclass):
     id: str  # A unique ID for the BareMetal.
     os: str  # The Operating System name, check OperatingSystemAPI.list and `OSItem.name` for available OSes.
-    ram: str  # Text description of the BareMetal instance's RAM. TODO check with API, not match with instance ram
+    ram: str  # Text description of the BareMetal instance's RAM.
     disk: str  # Text description of the BareMetal instances' disk configuration.
     main_ip: str  # The main IPv4 address.
     cpu_count: int  # Number of CPUs.

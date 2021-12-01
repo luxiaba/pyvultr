@@ -3,6 +3,7 @@
     "id": 123456,
     "description": "Account Credit",
     "date": "09-01-2021T00:00:00+00:00",
-    "amount": 5.25
+    "amount": 5.25,
+    "balance": 3.54
   }
 }

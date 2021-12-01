@@ -49,7 +49,7 @@ class BaseVultrV2(BaseVultrAPI):
             log.error(f"Error in calling Vultr API: code : {code}, resp: {text}")
             raise APIException(code, text)
 
-        return resp.json()
+        return resp.json() if resp.text else None
 
     @staticmethod
     def frequency_detector():

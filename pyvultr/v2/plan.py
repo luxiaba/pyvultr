@@ -19,7 +19,6 @@ class Plan(BaseDataclass):
     type: str  # The plan type, see `enums.PlayType` for possible values.
     locations: List[str]  # An array of Regions where this plan is valid for use.
     disk_count: int  # The number of disks that this plan offers.
-    name: int = None  # The Plan name.  TODO check with API(Docs not match with code)
 
 
 @dataclass

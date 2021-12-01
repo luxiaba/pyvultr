@@ -1,6 +1,8 @@
 class PYVException(Exception):
     """Base class for all exceptions raised by this module."""
 
+
+class NoAPIKeyException(PYVException):
     ...
 
 

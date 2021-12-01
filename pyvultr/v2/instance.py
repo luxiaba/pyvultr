@@ -78,10 +78,9 @@ class Instance(BaseDataclass):
     allowed_bandwidth: int  # Monthly bandwidth quota in GB.
     netmask_v4: str  # The IPv4 netmask in dot-decimal notation.
     gateway_v4: str  # The gateway IP address.
-    # v6_networks: List[V6NetworkItem]  # TODO check with API(Docs not match with code)
-    v6_network: str  # check with API  # TODO check with API(Docs not match with code)
-    v6_network_size: int  # check with API # TODO check with API(Docs not match with code)
-    v6_main_ip: str  # check with API # TODO check with API(Docs not match with code)
+    v6_network: str  # The IPv6 network size in bits.
+    v6_network_size: int  # The IPv6 subnet.
+    v6_main_ip: str  # The main IPv6 network address.
     hostname: str  # The hostname of the instance.
     label: str  # The user-supplied label for this instance.
     tag: str  # The user-supplied tag for this instance.
@@ -103,9 +102,9 @@ class BandwidthItem(BaseDataclass):
 
 @dataclass
 class InstancePrivateNetworkItem(BaseDataclass):
-    network_id: str  # TODO check with API(Docs not match with code), network_id or id?
     ip_address: str  # The assigned IP address.
     mac_address: str  # The assigned MAC address.
+    network_id: str  # The private network id.
 
 
 @dataclass
@@ -138,8 +137,9 @@ class IPv4Item(BaseDataclass):
     gateway: str  # The gateway IP address.
     type: str  # The type of IP address, check `enums.IPV4Type` for details.
     reverse: str  # The reverse DNS information for this IP address.
-    # TODO check with API(Docs not match with code)
-    mac_address: str = None  # The MAC address associated with this IP address.
+    # The MAC address associated with this IP address.
+    # It's in the document, but not in the code.
+    mac_address: str = None
 
 
 @dataclass

@@ -24,8 +24,7 @@ class Invoice(BaseDataclass):
     date: str  # Date the invoice was generated.
     description: str  # Description of the invoice.
     amount: float  # Amount of the invoice in dollars.
-    # TODO check with API(Docs not match with code)
-    balance: float = None  # The accounts balance in dollars.
+    balance: float  # The accounts balance in dollars.
 
 
 @dataclass

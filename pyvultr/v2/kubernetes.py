@@ -25,7 +25,7 @@ class ClusterNode(BaseDataclass):
     id: str  # ID of the node-pool instance.
     label: str  # Label of the node-pool instance.
     date_created: str  # Date of creation.
-    status: str = None  # TODO Check with API (Docs not match with code)
+    status: str  # Node status.
 
 
 @dataclass

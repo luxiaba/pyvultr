@@ -8,6 +8,7 @@ from urllib.parse import SplitResult, urlsplit
 import requests
 from requests import Response
 
+from pyvultr.exception import NoAPIKeyException
 from pyvultr.utils.box import remove_none
 
 log = logging.getLogger(__name__)
@@ -104,7 +105,8 @@ class BaseVultrAPI(BaseAPI):
     def __init__(self, version: SupportVultrAPIVersion, api_key: str = None):
         self.api_version: SupportVultrAPIVersion = version
         self.__token: str = os.getenv(ENV_TOKEN_NAME) or api_key
-        assert bool(self.__token), f"Missing Vultr API token: no {ENV_TOKEN_NAME} env or `api_key` arg"
+        if not self.__token:
+            raise NoAPIKeyException(f"Missing Vultr API token: no {ENV_TOKEN_NAME} env or `api_key` arg.")
 
     @property
     def base_url(self) -> str:

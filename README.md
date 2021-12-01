@@ -25,7 +25,7 @@ pip install -U pyvultr
 ```python
 from pyvultr import VultrV2
 
-# set your api key or we'll get it from env `VULTR_API_KEY`
+# Set your api key or we'll get it from env `VULTR_API_KEY`.
 VULTR_API_KEY = '...'
 
 v2 = VultrV2(api_key=VULTR_API_KEY)
