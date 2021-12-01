@@ -3,7 +3,7 @@
 The unofficial python library for the Vultr API in python.
 
 [![CI](https://github.com/luxiaba/pyvultr/actions/workflows/ci.yaml/badge.svg)](https://github.com/luxiaba/pyvultr/actions/workflows/ci.yaml)
-![PyPI](https://img.shields.io/pypi/v/pyvultr?color=blue&label=PyPI)
+[![PyPI](https://img.shields.io/pypi/v/pyvultr?color=blue&label=PyPI)](https://pypi.org/project/pyvultr/)
 
 [![Python 3.6.8](https://img.shields.io/badge/python-3.6.8-blue.svg)](https://www.python.org/downloads/release/python-368/)
 
