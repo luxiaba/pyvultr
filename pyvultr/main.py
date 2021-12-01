@@ -29,8 +29,8 @@ from pyvultr.v2 import (
 
 __author__ = "fishermanadg"
 __copyright__ = "Copyright 2021, The pyvultr Project"
-__license__ = "License: LGPL"
-__version__ = "0.1.0"
+__license__ = "License: MIT"
+__version__ = "0.1.1"
 __email__ = "fishermanadg@gmail.com"
 
 
