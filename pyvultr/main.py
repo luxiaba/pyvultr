@@ -66,4 +66,6 @@ class VultrV2:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     v2 = VultrV2()
-    log.warning(v2.account.get())
+    c = v2.region.list(capacity=3)
+    first_region = c.first()
+    print(first_region.country, first_region.city)

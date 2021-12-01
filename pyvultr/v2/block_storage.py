@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -78,7 +76,7 @@ class BlockStorage(BaseVultrV2):
             "label": label,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=BlockStorageItem, data=get_only_value(resp))
+        return BlockStorageItem.from_dict(get_only_value(resp))
 
     def get(self, block_id: str) -> BlockStorageItem:
         """Get information for Block Storage.
@@ -90,7 +88,7 @@ class BlockStorage(BaseVultrV2):
             BlockStorageItem: A `BlockStorageItem` object.
         """
         resp = self._get(f"/{block_id}")
-        return dacite.from_dict(data_class=BlockStorageItem, data=get_only_value(resp))
+        return BlockStorageItem.from_dict(get_only_value(resp))
 
     def update(self, block_id: str, size_gb: int = None, label: str = None):
         """Update information for Block Storage.

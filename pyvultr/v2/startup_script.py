@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -14,10 +12,10 @@ from .enum import StartupScriptType
 class StartupScriptItem(BaseDataclass):
     id: str
     date_created: str
-    date_modified: bool
+    date_modified: str
     name: str
-    script: str
     type: str
+    script: str = None
 
 
 class StartupScript(BaseVultrV2):
@@ -85,7 +83,7 @@ class StartupScript(BaseVultrV2):
             "type": script_type and script_type.value,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=StartupScriptItem, data=get_only_value(resp))
+        return StartupScriptItem.from_dict(data=get_only_value(resp))
 
     def get(self, startup_id: str) -> StartupScriptItem:
         """Get information for a Startup Script.
@@ -97,7 +95,7 @@ class StartupScript(BaseVultrV2):
             StartupScriptItem: The Startup Script item.
         """
         resp = self._get(f"/{startup_id}")
-        return dacite.from_dict(data_class=StartupScriptItem, data=get_only_value(resp))
+        return StartupScriptItem.from_dict(data=get_only_value(resp))
 
     def update(self, startup_id: str, name: str = None, script: str = None, script_type: StartupScriptType = None):
         """Update a Startup Script.

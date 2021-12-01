@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -79,7 +77,7 @@ class ReservedIP(BaseVultrV2):
             "label": label,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=ReservedIPItem, data=get_only_value(resp))
+        return ReservedIPItem.from_dict(data=get_only_value(resp))
 
     def get(self, reserved_ip: str) -> ReservedIPItem:
         """Get information about a Reserved IP.
@@ -91,7 +89,7 @@ class ReservedIP(BaseVultrV2):
             ReservedIPItem: The Reserved IP object.
         """
         resp = self._get(f"/{reserved_ip}")
-        return dacite.from_dict(data_class=ReservedIPItem, data=get_only_value(resp))
+        return ReservedIPItem.from_dict(data=get_only_value(resp))
 
     def attach(self, reserved_ip: str, instance_id: str):
         """Attach a Reserved IP to an compute instance or a baremetal instance - `instance_id`.
@@ -136,7 +134,7 @@ class ReservedIP(BaseVultrV2):
             "label": label,
         }
         resp = self._post("/convert", json=_json)
-        return dacite.from_dict(data_class=ReservedIPItem, data=get_only_value(resp))
+        return ReservedIPItem.from_dict(get_only_value(resp))
 
     def delete(self, reserved_ip: str):
         """Delete a Reserved IP.

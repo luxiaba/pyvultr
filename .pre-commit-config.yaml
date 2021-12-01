@@ -61,6 +61,8 @@ repos:
         args: [--remove]
       - id: mixed-line-ending
       - id: name-tests-test
+        args: [--django]
+        exclude: tests/fixtures/.*\.json|tests/fixture\.py|tests/base\.py
       - id: check-toml
       - id: check-json
       - id: debug-statements

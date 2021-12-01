@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -74,7 +72,7 @@ class SSHKey(BaseVultrV2):
             "ssh_key": ssh_key,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=SSHKeyItem, data=get_only_value(resp))
+        return SSHKeyItem.from_dict(get_only_value(resp))
 
     def get(self, ssh_key_id: str) -> SSHKeyItem:
         """Get information about an SSH Key.
@@ -86,7 +84,7 @@ class SSHKey(BaseVultrV2):
             SSHKeyItem: The SSH Key.
         """
         resp = self._get(f"/{ssh_key_id}")
-        return dacite.from_dict(data_class=SSHKeyItem, data=get_only_value(resp))
+        return SSHKeyItem.from_dict(get_only_value(resp))
 
     def update(self, ssh_key_id: str, name: str = None, ssh_key: str = None):
         """Update an SSH Key.

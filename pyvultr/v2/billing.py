@@ -3,8 +3,6 @@ from functools import partial
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -26,7 +24,7 @@ class Invoice(BaseDataclass):
     date: str
     description: str
     amount: float
-    balance: float
+    # balance: float # TODO check with API
 
 
 @dataclass
@@ -110,7 +108,7 @@ class Billing(BaseVultrV2):
             Invoice: A `Invoice` object.
         """
         resp = self._get(f"/invoices/{invoice_id}")
-        return dacite.from_dict(data_class=Invoice, data=get_only_value(resp))
+        return Invoice.from_dict(get_only_value(resp))
 
     def list_invoice_items(
         self,

@@ -3,8 +3,6 @@ from functools import partial
 from typing import List, Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -37,6 +35,7 @@ class ClusterNode(BaseDataclass):
     id: str
     label: str
     date_created: str
+    status: str
 
 
 @dataclass
@@ -125,7 +124,7 @@ class Kubernetes(BaseVultrV2):
             "node_pools": pools and [asdict(i) for i in pools],
         }
         resp = self._post("/clusters", json=_json)
-        return dacite.from_dict(data_class=ClusterItem, data=get_only_value(resp))
+        return ClusterItem.from_dict(get_only_value(resp))
 
     def get(self, vke_id: str) -> ClusterItem:
         """Get Kubernetes Cluster.
@@ -137,7 +136,7 @@ class Kubernetes(BaseVultrV2):
             ClusterItem: A `ClusterItem` object.
         """
         resp = self._get(f"/clusters/{vke_id}")
-        return dacite.from_dict(data_class=ClusterItem, data=get_only_value(resp))
+        return ClusterItem.from_dict(get_only_value(resp))
 
     def update(self, vke_id: str, label: str):
         """Update Kubernetes Cluster.
@@ -189,7 +188,7 @@ class Kubernetes(BaseVultrV2):
             ClusterResource: A `ClusterResource` object.
         """
         resp = self._get(f"/clusters/{vke_id}/resources")
-        return dacite.from_dict(data_class=ClusterResource, data=get_only_value(resp))
+        return ClusterResource.from_dict(get_only_value(resp))
 
     def list_node_pools(
         self,
@@ -229,7 +228,7 @@ class Kubernetes(BaseVultrV2):
             ClusterNodePoolFull: A `ClusterNodePoolFull` object.
         """
         resp = self._post(f"/clusters/{vke_id}/node-pools", json=asdict(node_pool))
-        return dacite.from_dict(data_class=ClusterNodePoolFull, data=get_only_value(resp))
+        return ClusterNodePoolFull.from_dict(get_only_value(resp))
 
     def get_node_pool(self, vke_id: str, node_pool_id: str) -> ClusterNodePoolFull:
         """Get NodePool from a Kubernetes Cluster.
@@ -242,7 +241,7 @@ class Kubernetes(BaseVultrV2):
             ClusterNodePoolFull: A `ClusterNodePoolFull` object.
         """
         resp = self._get(f"/clusters/{vke_id}/node-pools/{node_pool_id}")
-        return dacite.from_dict(data_class=ClusterNodePoolFull, data=get_only_value(resp))
+        return ClusterNodePoolFull.from_dict(get_only_value(resp))
 
     def update_node_pool(
         self,
@@ -267,7 +266,7 @@ class Kubernetes(BaseVultrV2):
             "tag": tag,
         }
         resp = self._patch(f"/clusters/{vke_id}/node-pools/{node_pool_id}", json=_json)
-        return dacite.from_dict(data_class=ClusterNodePoolFull, data=get_only_value(resp))
+        return ClusterNodePoolFull.from_dict(get_only_value(resp))
 
     def delete_node_pool(self, vke_id: str, node_pool_id: str):
         """Delete a NodePool from a Kubernetes Cluster.

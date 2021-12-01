@@ -1,0 +1,47 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, assigned, reopened]
+
+jobs:
+  Lint:
+    name: Pre-Commit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.6"
+      - uses: pre-commit/action@v2.0.3
+        with:
+          extra_args: --all-files
+
+  Test:
+    name: Pytest
+    needs: [Lint]
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python: ['3.6', '3.7', '3.8', '3.9', '3.10']
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Dependencies
+        run: |
+          python3 -m venv venv
+          . venv/bin/activate
+          pip install -U pip setuptools poetry
+          poetry install
+          python -c "import sys; print(sys.version)"
+          pip list
+      - name: Pytest
+        run: |
+          . venv/bin/activate
+          pytest -v -cov --cov=.

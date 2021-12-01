@@ -3,8 +3,6 @@ from functools import partial
 from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value, merge_args
 
 from .base import BaseVultrV2
@@ -35,20 +33,21 @@ class InstanceItem(BaseDataclass):
     gateway_v4: str
     power_status: str
     server_status: str
-    v6_networks: List[V6NetworkItem]
+    # v6_networks: List[V6NetworkItem]  # check with API
+    v6_network: str  # check with API
+    v6_network_size: int  # check with API
     v6_main_ip: str
-    v6_network_size: str
     label: str
     internal_ip: str
     kvm: str
     hostname: str
     tag: str
-    os_id: str
+    os_id: int
     app_id: int
     image_id: str
     firewall_group_id: str
     features: List[str]
-    default_password: str
+    default_password: str = None
 
 
 @dataclass
@@ -58,8 +57,8 @@ class BandwidthItem(BaseDataclass):
 
 
 @dataclass
-class PrivateNetworkItem(BaseDataclass):
-    id: str
+class InstancePrivateNetworkItem(BaseDataclass):
+    network_id: str
     mac_address: str
     ip_address: str
 
@@ -204,7 +203,7 @@ class Instance(BaseVultrV2):
             "plan": plan,
         }
         resp = self._post(json=merge_args(kwargs, _fixed_args))
-        return dacite.from_dict(data_class=InstanceItem, data=get_only_value(resp))
+        return InstanceItem.from_dict(get_only_value(resp))
 
     def get(self, instance_id: str) -> InstanceItem:
         """Get information about an Instance.
@@ -216,7 +215,7 @@ class Instance(BaseVultrV2):
             InstanceItem: A `InstanceItem` object.
         """
         resp = self._get(f"/{instance_id}")
-        return dacite.from_dict(data_class=InstanceItem, data=get_only_value(resp))
+        return InstanceItem.from_dict(get_only_value(resp))
 
     def update(self, instance_id: str, **kwargs) -> InstanceItem:
         """Update information for an Instance.
@@ -232,7 +231,7 @@ class Instance(BaseVultrV2):
             InstanceItem: A `InstanceItem` object.
         """
         resp = self._patch(f"/{instance_id}", json=kwargs)
-        return dacite.from_dict(data_class=InstanceItem, data=get_only_value(resp))
+        return InstanceItem.from_dict(get_only_value(resp))
 
     def delete(self, instance_id: str):
         """Delete an Instance.
@@ -331,7 +330,7 @@ class Instance(BaseVultrV2):
             "hostname": hostname,
         }
         resp = self._post(f"/{instance_id}/reinstall", json=_json)
-        return dacite.from_dict(data_class=InstanceItem, data=get_only_value(resp))
+        return InstanceItem.from_dict(get_only_value(resp))
 
     def get_bandwidth(self, instance_id: str) -> Dict[str, BandwidthItem]:
         """Get bandwidth information about an Instance.
@@ -350,7 +349,7 @@ class Instance(BaseVultrV2):
         """
         _resp: Dict = self._get(f"/{instance_id}/bandwidth")
         resp = get_only_value(_resp)
-        return {_date: dacite.from_dict(data_class=BandwidthItem, data=item) for _date, item in resp.items()}
+        return {_date: BandwidthItem.from_dict(item) for _date, item in resp.items()}
 
     def list_neighbors(self, instance_id: str) -> List[str]:
         """Get a list of other instances in the same location as this Instance.
@@ -370,7 +369,7 @@ class Instance(BaseVultrV2):
         per_page: int = None,
         cursor: str = None,
         capacity: int = None,
-    ) -> VultrPagination[PrivateNetworkItem]:
+    ) -> VultrPagination[InstancePrivateNetworkItem]:
         """List the private networks for an Instance.
 
         Args:
@@ -380,14 +379,14 @@ class Instance(BaseVultrV2):
             capacity: The capacity of the VultrPagination[PrivateNetworkItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[PrivateNetworkItem]: A list-like object of `PrivateNetworkItem` object.
+            VultrPagination[InstancePrivateNetworkItem]: A list-like object of `PrivateNetworkItem` object.
         """
         fetcher = partial(self._get, endpoint=f"/{instance_id}/private-networks")
-        return VultrPagination[PrivateNetworkItem](
+        return VultrPagination[InstancePrivateNetworkItem](
             fetcher=fetcher,
             cursor=cursor,
             page_size=per_page,
-            return_type=PrivateNetworkItem,
+            return_type=InstancePrivateNetworkItem,
             capacity=capacity,
         )
 
@@ -401,7 +400,7 @@ class Instance(BaseVultrV2):
             ISOStatus: A `ISOStatus` object.
         """
         resp = self._get(f"/{instance_id}/iso")
-        return dacite.from_dict(data_class=ISOStatus, data=get_only_value(resp))
+        return ISOStatus.from_dict(get_only_value(resp))
 
     def attach_iso(self, instance_id: str, iso_id: str = None):
         """Attach an ISO to an Instance.
@@ -466,7 +465,7 @@ class Instance(BaseVultrV2):
     def set_backup_schedule(
         self,
         instance_id: str,
-        backup_type: BackupScheduleType = None,
+        backup_type: BackupScheduleType,
         hour: int = None,
         dow: int = None,
         dom: int = None,
@@ -490,7 +489,7 @@ class Instance(BaseVultrV2):
             "dom": dom,
         }
         resp = self._post(f"/{instance_id}/backup-schedule", json=_json)
-        return dacite.from_dict(data_class=BackupSchedule, data=get_only_value(resp))
+        return BackupSchedule.from_dict(get_only_value(resp))
 
     def get_backup_schedule(self, instance_id: str) -> BackupSchedule:
         """Get the backup schedule for an Instance.
@@ -502,7 +501,7 @@ class Instance(BaseVultrV2):
             BackupSchedule: A `BackupSchedule` object.
         """
         resp = self._get(f"/{instance_id}/backup-schedule")
-        return dacite.from_dict(data_class=BackupSchedule, data=get_only_value(resp))
+        return BackupSchedule.from_dict(get_only_value(resp))
 
     def restore(self, instance_id: str, backup_id: str = None, snapshot_id: str = None) -> RestoreStatus:
         """Restore an Instance from either `backup_id` or `snapshot_id`.
@@ -520,7 +519,7 @@ class Instance(BaseVultrV2):
             "snapshot_id": snapshot_id,
         }
         resp = self._post(f"/{instance_id}/restore", json=_json)
-        return dacite.from_dict(data_class=RestoreStatus, data=get_only_value(resp))
+        return RestoreStatus.from_dict(get_only_value(resp))
 
     def list_ipv4s(
         self,
@@ -548,7 +547,7 @@ class Instance(BaseVultrV2):
         _extra_params = {
             "public_network": _public_network,
         }
-        fetcher = partial(self._get, endpoint=f"/{instance_id}/ipv4s")
+        fetcher = partial(self._get, endpoint=f"/{instance_id}/ipv4")
         return VultrPagination[IPv4Item](
             fetcher=fetcher,
             cursor=cursor,
@@ -572,7 +571,7 @@ class Instance(BaseVultrV2):
             "reboot": reboot,
         }
         resp = self._post(f"/{instance_id}/ipv4", json=_json)
-        return dacite.from_dict(data_class=IPv4Item, data=get_only_value(resp))
+        return IPv4Item.from_dict(get_only_value(resp))
 
     def list_ipv6s(
         self,
@@ -593,11 +592,11 @@ class Instance(BaseVultrV2):
             VultrPagination[IPv6Item]: A list-like object of `IPv6Item` object.
         """
         fetcher = partial(self._get, endpoint=f"/{instance_id}/ipv6")
-        return VultrPagination[IPv4Item](
+        return VultrPagination[IPv6Item](
             fetcher=fetcher,
             cursor=cursor,
             page_size=per_page,
-            return_type=IPv4Item,
+            return_type=IPv6Item,
             capacity=capacity,
         )
 
@@ -632,7 +631,7 @@ class Instance(BaseVultrV2):
         """
         _resp = self._get(f"/{instance_id}/ipv6/reverse")
         reps = get_only_value(_resp)
-        return [dacite.from_dict(data_class=IPv6ReverseItem, data=r) for r in reps]
+        return [IPv6ReverseItem.from_dict(r) for r in reps]
 
     def create_ipv4_reverse(self, instance_id: str, ip: str, reverse: str):
         """Create a reverse IPv4 entry for an Instance.
@@ -663,8 +662,8 @@ class Instance(BaseVultrV2):
         Returns:
             UserData: A `UserData` object.
         """
-        resp = self._get(f"/{instance_id}/user-date")
-        return dacite.from_dict(data_class=UserData, data=get_only_value(resp))
+        resp = self._get(f"/{instance_id}/user-data")
+        return UserData.from_dict(get_only_value(resp))
 
     def halt(self, instance_id: str):
         """Halt an Instance.
@@ -733,5 +732,5 @@ class Instance(BaseVultrV2):
         _params = {
             "type": upgrade_type and upgrade_type.value,
         }
-        _resp = self._get(f"/{instance_id}/upgrades", params=_params)
-        return dacite.from_dict(data_class=AvailableUpgrade, data=get_only_value(_resp))
+        resp = self._get(f"/{instance_id}/upgrades", params=_params)
+        return AvailableUpgrade.from_dict(get_only_value(resp))

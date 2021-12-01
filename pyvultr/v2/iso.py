@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from functools import partial
 from typing import Optional
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -74,8 +72,8 @@ class ISO(BaseVultrV2):
         _json = {
             "url": url,
         }
-        resp = self._post(json=_json)
-        return dacite.from_dict(data_class=ISOItem, data=get_only_value(resp))
+        resp = self._post("/iso", json=_json)
+        return ISOItem.from_dict(get_only_value(resp))
 
     def get(self, iso_id: str) -> ISOItem:
         """Get information for an ISO.
@@ -87,7 +85,7 @@ class ISO(BaseVultrV2):
             ISOItem: An ISOItem object.
         """
         resp = self._get(f"/iso/{iso_id}")
-        return dacite.from_dict(data_class=ISOItem, data=get_only_value(resp))
+        return ISOItem.from_dict(get_only_value(resp))
 
     def delete(self, iso_id: str):
         """Delete an ISO.

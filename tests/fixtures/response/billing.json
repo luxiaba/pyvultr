@@ -1,0 +1,27 @@
+{
+  "billing_history": [
+    {
+      "id": 123456,
+      "date": "2020-10-10T01:56:20+00:00",
+      "type": "invoice",
+      "description": "Invoice #123456",
+      "amount": 100.03,
+      "balance": 79.48
+    },
+    {
+      "id": 123457,
+      "date": "2020-10-10T01:46:05+00:00",
+      "type": "credit",
+      "description": "Account Credit",
+      "amount": 50.55,
+      "balance": -20.55
+    }
+  ],
+  "meta": {
+    "total": 3,
+    "links": {
+      "next": "WxYzExampleNext",
+      "prev": ""
+    }
+  }
+}

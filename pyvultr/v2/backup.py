@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -81,4 +79,4 @@ class Backup(BaseVultrV2):
             BackupItem: A `BackupItem` object.
         """
         resp = self._get(f"/{backup_id}")
-        return dacite.from_dict(data_class=BackupItem, data=get_only_value(resp))
+        return BackupItem.from_dict(data=get_only_value(resp))

@@ -3,8 +3,6 @@ from functools import partial
 from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value, merge_args
 
 from .base import BaseVultrV2
@@ -116,7 +114,7 @@ class LoadBalance(BaseVultrV2):
         """
         _fixed_kwargs = {"region": region}
         resp = self._post(json=merge_args(kwargs, _fixed_kwargs))
-        return dacite.from_dict(data_class=LoadBalanceItem, data=get_only_value(resp))
+        return LoadBalanceItem.from_dict(get_only_value(resp))
 
     def get(self, load_balancer_id: str) -> LoadBalanceItem:
         """Get information for a Load Balancer.
@@ -128,7 +126,7 @@ class LoadBalance(BaseVultrV2):
             LoadBalanceItem: The LoadBalanceItem object.
         """
         resp = self._get(f"/{load_balancer_id}")
-        return dacite.from_dict(data_class=LoadBalanceItem, data=get_only_value(resp))
+        return LoadBalanceItem.from_dict(get_only_value(resp))
 
     def update(self, load_balancer_id: str, **kwargs):
         """Update information for a Load Balancer.
@@ -211,7 +209,7 @@ class LoadBalance(BaseVultrV2):
             "backend_port": backend_port,
         }
         resp = self._post(f"/{load_balancer_id}/forwarding-rules", json=_json)
-        return dacite.from_dict(data_class=LoadBalanceForwardRule, data=get_only_value(resp))
+        return LoadBalanceForwardRule.from_dict(get_only_value(resp))
 
     def get_forwarding_rule(self, load_balancer_id: str, forwarding_rule_id: str) -> LoadBalanceForwardRule:
         """Get information for a Forwarding Rule on a Load Balancer.
@@ -224,7 +222,7 @@ class LoadBalance(BaseVultrV2):
             LoadBalanceForwardRule: A `LoadBalanceForwardRule` object.
         """
         resp = self._get(f"/{load_balancer_id}/forwarding-rules/{forwarding_rule_id}")
-        return dacite.from_dict(data_class=LoadBalanceForwardRule, data=get_only_value(resp))
+        return LoadBalanceForwardRule.from_dict(get_only_value(resp))
 
     def delete_forwarding_rule(self, load_balancer_id: str, forwarding_rule_id: str):
         """Delete a Forwarding Rule on a Load Balancer.
@@ -277,4 +275,4 @@ class LoadBalance(BaseVultrV2):
             LoadBalanceFirewallRule: A `LoadBalanceFirewallRule` object.
         """
         resp = self._get(f"/{load_balancer_id}/firewall-rules/{forwarding_rule_id}")
-        return dacite.from_dict(data_class=LoadBalanceFirewallRule, data=get_only_value(resp))
+        return LoadBalanceFirewallRule.from_dict(get_only_value(resp))

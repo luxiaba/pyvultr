@@ -6,7 +6,13 @@ import dacite
 
 from pyvultr.exception import NoMorePageDataException, OutOfRangePageDataException, UnexpectedPageDataException
 
-from .box import BaseDataclass, get_only_value, remove_none
+from .box import BaseDataclass, Enums, get_only_value, remove_none
+
+
+class PaginationFetchState(Enums):
+    NeverFetch = "NeverFetch"
+    FetchAble = "FetchAble"
+    NoMoreData = "NoMoreData"
 
 
 @dataclass
@@ -35,7 +41,7 @@ class VultrPagination(Generic[T], list):
 
     def __init__(
         self,
-        fetcher: Callable[[...], Dict],
+        fetcher: Callable[..., Dict],
         cursor: str = None,
         page_size: int = None,
         return_type: T = None,
@@ -43,7 +49,7 @@ class VultrPagination(Generic[T], list):
         **params: Dict[str, Any],
     ):
         super().__init__()
-        self.fetcher: Callable[[...], Dict] = fetcher
+        self.fetcher: Callable[..., Dict] = fetcher
         self.cursor: str = cursor
         self.page_size: int = page_size
         self.return_type = return_type
@@ -51,12 +57,13 @@ class VultrPagination(Generic[T], list):
         self.data: List[T] = []
         self.__idx = 0
         self.__total = None
+        self.state: PaginationFetchState = PaginationFetchState.NeverFetch
         self.capacity: int = capacity
         self.check_prefetch(self.capacity)
 
     def __repr__(self):
         """Return the string representation of the object."""
-        return f"<{self.__class__.__name__} {len(self)} items>"
+        return f"<{self.__class__.__name__} {len(self)} items, state: {self.state.value}>"
 
     def __len__(self):
         """Return the length of the object."""
@@ -94,6 +101,13 @@ class VultrPagination(Generic[T], list):
             return self.data[key]
         else:
             raise TypeError(f"{key} is not int or slice")
+
+    def first(self) -> T:
+        """Get the first value of the object."""
+        try:
+            return self.get_by_idx(0)
+        except OutOfRangePageDataException:
+            return None
 
     def check_prefetch(self, cnt: int = None) -> T:
         """Check if we need to prefetch data."""
@@ -154,6 +168,7 @@ class VultrPagination(Generic[T], list):
         try:
             self.fetch()
         except NoMorePageDataException:
+            self.state = PaginationFetchState.NoMoreData
             raise OutOfRangePageDataException()
 
         return self.get_by_idx(idx)
@@ -185,7 +200,8 @@ class VultrPagination(Generic[T], list):
         if self.cursor == "":
             raise NoMorePageDataException()
 
-        raw_data: Dict = self.fetcher(**self.params)
+        raw_data: Dict = self.fetcher(params=self.params)
+        self.state = PaginationFetchState.FetchAble
         page_meta = raw_data.pop("meta", None)
         if not page_meta:
             raise UnexpectedPageDataException()
@@ -198,7 +214,7 @@ class VultrPagination(Generic[T], list):
         if is_dataclass(self.return_type):
             _data = [dacite.from_dict(data_class=self.return_type, data=i) for i in _data]
 
-        meta: PageMeta = dacite.from_dict(data_class=PageMeta, data=page_meta)
+        meta: PageMeta = PageMeta.from_dict(page_meta)
         self.cursor = meta.links.next or ""  # in case return null
         self.__total = meta.total
         should_end_at = None if self.capacity is None else max(self.capacity - len(self.data), 0)

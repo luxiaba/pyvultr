@@ -3,8 +3,6 @@ from functools import partial
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -98,7 +96,7 @@ class ObjectStorage(BaseVultrV2):
             "label": label,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=ObjectStorageItem, data=get_only_value(resp))
+        return ObjectStorageItem.from_dict(get_only_value(resp))
 
     def get(self, object_storage_id: str) -> ObjectStorageItem:
         """Get information about an Object Storage.
@@ -110,7 +108,7 @@ class ObjectStorage(BaseVultrV2):
             ObjectStorageItem: A `ObjectStorageItem` object.
         """
         resp = self._get(f"/{object_storage_id}")
-        return dacite.from_dict(data_class=ObjectStorageItem, data=get_only_value(resp))
+        return ObjectStorageItem.from_dict(get_only_value(resp))
 
     def delete(self, object_storage_id: str):
         """Delete an Object Storage.
@@ -150,7 +148,7 @@ class ObjectStorage(BaseVultrV2):
             ObjectStorageS3Credential: A `ObjectStorageS3Credential` object.
         """
         resp = self._post(f"/{object_storage_id}/regenerate-keys")
-        return dacite.from_dict(data_class=ObjectStorageS3Credential, data=get_only_value(resp))
+        return ObjectStorageS3Credential.from_dict(get_only_value(resp))
 
     def list_clusters(
         self,

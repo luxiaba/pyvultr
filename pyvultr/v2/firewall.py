@@ -3,8 +3,6 @@ from functools import partial
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -25,7 +23,7 @@ class FirewallGroup(BaseDataclass):
 @dataclass
 class FirewallRule(BaseDataclass):
     id: int
-    type: str
+    ip_type: str
     action: str
     protocol: str
     port: str
@@ -92,7 +90,7 @@ class Firewall(BaseVultrV2):
             "description": description,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=FirewallGroup, data=get_only_value(resp))
+        return FirewallGroup.from_dict(get_only_value(resp))
 
     def get_group(self, firewall_group_id: str) -> FirewallGroup:
         """Get information for a Firewall Group.
@@ -104,7 +102,7 @@ class Firewall(BaseVultrV2):
             FirewallGroup: A `FirewallGroup` object.
         """
         resp = self._get(f"/{firewall_group_id}")
-        return dacite.from_dict(data_class=FirewallGroup, data=get_only_value(resp))
+        return FirewallGroup.from_dict(get_only_value(resp))
 
     def update_group(self, firewall_group_id: str, description: str):
         """Update information for a Firewall Group.
@@ -199,7 +197,7 @@ class Firewall(BaseVultrV2):
             "notes": notes,
         }
         resp = self._post(f"/{firewall_group_id}/rules", json=_json)
-        return dacite.from_dict(data_class=FirewallRule, data=get_only_value(resp))
+        return FirewallRule.from_dict(get_only_value(resp))
 
     def get_rule(self, firewall_group_id: str, firewall_rule_id: str) -> FirewallRule:
         """Get a Firewall Rule.
@@ -212,7 +210,7 @@ class Firewall(BaseVultrV2):
             FirewallRule: A `FirewallRule` object.
         """
         resp = self._get(f"/{firewall_group_id}/rules/{firewall_rule_id}")
-        return dacite.from_dict(data_class=FirewallRule, data=get_only_value(resp))
+        return FirewallRule.from_dict(get_only_value(resp))
 
     def delete_rule(self, firewall_group_id: str, firewall_rule_id: str):
         """Delete a Firewall Rule.

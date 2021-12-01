@@ -3,8 +3,6 @@ from functools import partial
 from typing import List, Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -14,8 +12,8 @@ from .enum import DNSRecordType
 @dataclass
 class Domain(BaseDataclass):
     domain: str
-    date_created: str
     dns_sec: str
+    date_created: str = None
 
 
 @dataclass
@@ -91,7 +89,7 @@ class DNS(BaseVultrV2):
             "dns_sec": dns_sec,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=Domain, data=get_only_value(resp))
+        return Domain.from_dict(data=get_only_value(resp))
 
     def get_domain(self, dns_domain: str) -> Domain:
         """Get information for the DNS Domain.
@@ -103,7 +101,7 @@ class DNS(BaseVultrV2):
             Domain: A `Domain` object.
         """
         resp = self._get(f"/{dns_domain}")
-        return dacite.from_dict(data_class=Domain, data=get_only_value(resp))
+        return Domain.from_dict(data=get_only_value(resp))
 
     def update_domain(self, dns_domain: str, dns_sec: str):
         """Update the DNS Domain.
@@ -143,7 +141,7 @@ class DNS(BaseVultrV2):
             SOA: A `SOA` object.
         """
         resp = self._get(f"/{dns_domain}/soa")
-        return dacite.from_dict(data_class=SOA, data=get_only_value(resp))
+        return SOA.from_dict(get_only_value(resp))
 
     def update_soa(self, dns_domain: str, ns_primary: str = None, email: str = None):
         """Update the SOA information for the DNS Domain.
@@ -207,7 +205,7 @@ class DNS(BaseVultrV2):
             "priority": priority,
         }
         resp = self._post(f"/{dns_domain}/records", json=_json)
-        return dacite.from_dict(data_class=DNSRecord, data=get_only_value(resp))
+        return DNSRecord.from_dict(get_only_value(resp))
 
     def list_records(
         self,
@@ -246,8 +244,8 @@ class DNS(BaseVultrV2):
         Returns:
             DNSRecord: A `DNSRecord` object.
         """
-        reps = self._get(f"/{dns_domain}/records/{record_id}")
-        return dacite.from_dict(data_class=DNSRecord, data=get_only_value(reps))
+        resp = self._get(f"/{dns_domain}/records/{record_id}")
+        return DNSRecord.from_dict(get_only_value(resp))
 
     def update_record(
         self,

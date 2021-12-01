@@ -1,8 +1,9 @@
 import logging
-from collections import ChainMap
 from dataclasses import asdict, dataclass
 from enum import Enum, unique
 from typing import Any, Dict, Optional
+
+import dacite
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +17,7 @@ def merge_args(*args: Optional[Dict]) -> Dict:
     Returns:
         dict: Merged dict.
     """
-    return dict(ChainMap({}, *[d for d in args if d]))
+    return {k: v for d in args if d for k, v in d.items()}
 
 
 def remove_none(d: Optional[Dict] = None) -> Dict:
@@ -62,3 +63,15 @@ class BaseDataclass:
             Dict: Python dict representation of the object.
         """
         return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> "BaseDataclass":
+        """Convert dict to dataclass.
+
+        Args:
+            data: a dict that convert to dataclass
+
+        Returns:
+            BaseDataclass:
+        """
+        return dacite.from_dict(data_class=cls, data=data)

@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import List, Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -13,11 +11,11 @@ from .enum import ACL
 @dataclass
 class UserInfo(BaseDataclass):
     id: str
-    name: str
     api_enabled: bool
     email: str
-    password: str
     acls: List[str]
+    name: str = None
+    password: str = None
 
 
 class User(BaseVultrV2):
@@ -87,7 +85,7 @@ class User(BaseVultrV2):
             "acls": acl_group and [i.value for i in acl_group],
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=UserInfo, data=get_only_value(resp))
+        return UserInfo.from_dict(get_only_value(resp))
 
     def get(self, user_id: str) -> UserInfo:
         """Get information about a User.
@@ -99,7 +97,7 @@ class User(BaseVultrV2):
             UserInfo: User info.
         """
         resp = self._get(f"/{user_id}")
-        return dacite.from_dict(data_class=UserInfo, data=get_only_value(resp))
+        return UserInfo.from_dict(get_only_value(resp))
 
     def update(
         self,

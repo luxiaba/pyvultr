@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, get_only_value
 
 from .base import BaseVultrV2
@@ -40,4 +38,4 @@ class Account(BaseVultrV2):
             AccountInfo: A `AccountInfo` object.
         """
         resp = self._get("/account")
-        return dacite.from_dict(data_class=AccountInfo, data=get_only_value(resp))
+        return AccountInfo.from_dict(get_only_value(resp))

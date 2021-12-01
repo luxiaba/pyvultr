@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -94,7 +92,7 @@ class PrivateNetwork(BaseVultrV2):
             "v4_subnet_mask": v4_subnet_mask,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=PrivateNetworkItem, data=get_only_value(resp))
+        return PrivateNetworkItem.from_dict(get_only_value(resp))
 
     def get(self, network_id: str) -> PrivateNetworkItem:
         """Get information about a Private Network.
@@ -106,7 +104,7 @@ class PrivateNetwork(BaseVultrV2):
             PrivateNetworkItem: PrivateNetworkItem object.
         """
         resp = self._get(f"/{network_id}")
-        return dacite.from_dict(data_class=PrivateNetworkItem, data=get_only_value(resp))
+        return PrivateNetworkItem.from_dict(get_only_value(resp))
 
     def update(self, network_id: str, description: str):
         """Update information for a Private Network.

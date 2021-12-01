@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
@@ -76,7 +74,7 @@ class Snapshot(BaseVultrV2):
             "description": description,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=SnapshotItem, data=get_only_value(resp))
+        return SnapshotItem.from_dict(get_only_value(resp))
 
     def create_from_url(self, url: str) -> SnapshotItem:
         """Create a new Snapshot from a RAW image located at `url`.
@@ -91,7 +89,7 @@ class Snapshot(BaseVultrV2):
             "url": url,
         }
         resp = self._post("/create-from-url", json=_json)
-        return dacite.from_dict(data_class=SnapshotItem, data=get_only_value(resp))
+        return SnapshotItem.from_dict(get_only_value(resp))
 
     def get(self, snapshot_id: str) -> SnapshotItem:
         """Get information about a Snapshot.
@@ -103,7 +101,7 @@ class Snapshot(BaseVultrV2):
             SnapshotItem: The Snapshot object.
         """
         resp = self._get(f"/{snapshot_id}")
-        return dacite.from_dict(data_class=SnapshotItem, data=get_only_value(resp))
+        return SnapshotItem.from_dict(get_only_value(resp))
 
     def update(self, snapshot_id: str, description: str):
         """Update the description for a Snapshot.

@@ -12,7 +12,7 @@ from pyvultr.utils.box import remove_none
 
 log = logging.getLogger(__name__)
 DEFAULT_TIMEOUT = 10.00
-ENV_TOKEN_NAME = "VULTR_API_TOKEN"  # nosec: false B105(hardcoded_password_string) by bandit
+ENV_TOKEN_NAME = "VULTR_API_KEY"  # nosec: false B105(hardcoded_password_string) by bandit
 
 
 @unique
