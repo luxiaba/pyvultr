@@ -3,7 +3,7 @@ from typing import List
 
 from pyvultr.base_api import SupportHttpMethod
 from pyvultr.utils import get_only_value
-from pyvultr.v2 import ClusterItem, ClusterNodePool, ClusterNodePoolFull, ClusterResource
+from pyvultr.v2 import Cluster, ClusterNodePoolFull, ClusterResource, ReqClusterNodePool
 from tests.base import BaseTest
 
 
@@ -12,10 +12,10 @@ class TestKubernetes(BaseTest):
         """Test list."""
         with self._get("response/kubernetes_clusters") as mock:
             _excepted_result = mock.python_body["vke_clusters"][0]
-            excepted_result = ClusterItem.from_dict(_excepted_result)
+            excepted_result = Cluster.from_dict(_excepted_result)
 
             _real_result = self.api_v2.kubernetes.list(capacity=1)
-            real_result: ClusterItem = _real_result.first()
+            real_result: Cluster = _real_result.first()
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/kubernetes/clusters")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -23,13 +23,13 @@ class TestKubernetes(BaseTest):
 
     def test_create(self):
         """Test create cluster."""
-        with self._post("response/kubernetes_cluster", expected_returned=ClusterItem, status_code=201) as mock:
+        with self._post("response/kubernetes_cluster", expected_returned=Cluster, status_code=201) as mock:
             excepted_result = mock.python_body
 
             region = "ams"
             version = "test_version"
             label = "test_label"
-            real_result: ClusterItem = self.api_v2.kubernetes.create(region=region, version=version, label=label)
+            real_result: Cluster = self.api_v2.kubernetes.create(region=region, version=version, label=label)
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/kubernetes/clusters")
             self.assertEqual(mock.method, SupportHttpMethod.POST.value)
@@ -41,11 +41,11 @@ class TestKubernetes(BaseTest):
 
     def test_get(self):
         """Test get kubernetes cluster."""
-        with self._get("response/kubernetes_cluster", expected_returned=ClusterItem) as mock:
+        with self._get("response/kubernetes_cluster", expected_returned=Cluster) as mock:
             excepted_result = mock.python_body
 
             vke_id = str(uuid.uuid4())
-            real_result: ClusterItem = self.api_v2.kubernetes.get(vke_id=vke_id)
+            real_result: Cluster = self.api_v2.kubernetes.get(vke_id=vke_id)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/kubernetes/clusters/{vke_id}")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -120,7 +120,7 @@ class TestKubernetes(BaseTest):
             excepted_result = mock.python_body
 
             vke_id = str(uuid.uuid4())
-            pool = ClusterNodePool(
+            pool = ReqClusterNodePool(
                 node_quantity=3,
                 label="test_label",
                 plan="test_plan",

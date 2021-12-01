@@ -8,14 +8,14 @@ from .base import BaseVultrV2
 
 
 @dataclass
-class SSHKeyItem(BaseDataclass):
-    id: str
-    date_created: str
-    name: str
-    ssh_key: str
+class SSHKey(BaseDataclass):
+    id: str  # A unique ID for the SSH Key.
+    date_created: str  # The date this SSH Key was created.
+    name: str  # The user-supplied name for this SSH Key.
+    ssh_key: str  # The SSH Key.
 
 
-class SSHKey(BaseVultrV2):
+class SSHKeyAPI(BaseVultrV2):
     """Vultr SSHKey API.
 
     Reference: https://www.vultr.com/zh/api/#tag/ssh
@@ -25,7 +25,7 @@ class SSHKey(BaseVultrV2):
     If you reinstall an instance (erasing all its data), it will inherit the updated key.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -36,7 +36,7 @@ class SSHKey(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "ssh-keys")
 
-    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[SSHKeyItem]:
+    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[SSHKey]:
         """List all SSH Keys in your account.
 
         Args:
@@ -45,17 +45,17 @@ class SSHKey(BaseVultrV2):
             capacity: The capacity of the VultrPagination[SSHKeyItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[SSHKeyItem]: A list-like object of `SSHKeyItem` object.
+            VultrPagination[SSHKey]: A list-like object of `SSHKeyItem` object.
         """
-        return VultrPagination[SSHKeyItem](
+        return VultrPagination[SSHKey](
             fetcher=self._get,
             cursor=cursor,
             page_size=per_page,
-            return_type=SSHKeyItem,
+            return_type=SSHKey,
             capacity=capacity,
         )
 
-    def create(self, name: str, ssh_key: str) -> SSHKeyItem:
+    def create(self, name: str, ssh_key: str) -> SSHKey:
         """Create a new SSH Key for use with future instances.
 
         This does not update any running instances.
@@ -65,26 +65,26 @@ class SSHKey(BaseVultrV2):
             ssh_key: The SSH Key.
 
         Returns:
-            SSHKeyItem: The SSH Key.
+            SSHKey: The SSH Key.
         """
         _json = {
             "name": name,
             "ssh_key": ssh_key,
         }
         resp = self._post(json=_json)
-        return SSHKeyItem.from_dict(get_only_value(resp))
+        return SSHKey.from_dict(get_only_value(resp))
 
-    def get(self, ssh_key_id: str) -> SSHKeyItem:
+    def get(self, ssh_key_id: str) -> SSHKey:
         """Get information about an SSH Key.
 
         Args:
             ssh_key_id: The SSH Key ID.
 
         Returns:
-            SSHKeyItem: The SSH Key.
+            SSHKey: The SSH Key.
         """
         resp = self._get(f"/{ssh_key_id}")
-        return SSHKeyItem.from_dict(get_only_value(resp))
+        return SSHKey.from_dict(get_only_value(resp))
 
     def update(self, ssh_key_id: str, name: str = None, ssh_key: str = None):
         """Update an SSH Key.

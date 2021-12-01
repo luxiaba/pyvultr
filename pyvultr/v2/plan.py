@@ -5,38 +5,39 @@ from typing import List, Optional
 from pyvultr.utils import BaseDataclass, VultrPagination
 
 from .base import BaseVultrV2
-from .enum import RegionType
+from .enums import RegionType
 
 
 @dataclass
-class PlanItem(BaseDataclass):
-    id: str
-    vcpu_count: int
-    ram: int
-    disk: int
-    disk_count: int
-    bandwidth: int
-    monthly_cost: float
-    type: str
-    locations: List[str]
+class Plan(BaseDataclass):
+    id: str  # A unique ID for the Plan.
+    vcpu_count: int  # The number of vCPUs in this Plan.
+    ram: int  # The amount of RAM in MB.
+    disk: int  # The disk size in GB.
+    bandwidth: int  # The monthly bandwidth quota in GB.
+    monthly_cost: float  # The monthly cost in US Dollars.
+    type: str  # The plan type, see `enums.PlayType` for possible values.
+    locations: List[str]  # An array of Regions where this plan is valid for use.
+    disk_count: int  # The number of disks that this plan offers.
+    name: int = None  # The Plan name.  TODO check with API(Docs not match with code)
 
 
 @dataclass
 class BareMetalPlanItem(BaseDataclass):
-    id: str
-    cpu_count: int
-    cpu_model: str
-    cpu_threads: int
-    ram: int
-    disk: int
-    bandwidth: int
-    locations: List[str]
-    type: str
-    monthly_cost: float
-    disk_count: int
+    id: str  # A unique ID for the Bare Metal Plan.
+    cpu_count: int  # The number of CPUs in this Plan.
+    cpu_model: str  # The CPU model type for this instance.
+    cpu_threads: int  # The numner of supported threads for this instance.
+    ram: int  # The amount of RAM in MB.
+    disk: int  # The disk size in GB.
+    bandwidth: int  # The monthly bandwidth quota in GB.
+    locations: List[str]  # An array of Regions where this plan is valid for use.
+    type: str  # The plan type., see `enums.BareMetalPlayType` for possible values.
+    monthly_cost: float  # The monthly cost in US Dollars.
+    disk_count: int  # The number of disks that this plan offers.
 
 
-class Plan(BaseVultrV2):
+class PlanAPI(BaseVultrV2):
     """Vultr Plan API.
 
     Reference: https://www.vultr.com/zh/api/#tag/plans
@@ -46,7 +47,7 @@ class Plan(BaseVultrV2):
     You can browse plans in the Customer Portal or get a list of Plans from the API.
 
     Attributes
-        :api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        :api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -60,7 +61,7 @@ class Plan(BaseVultrV2):
         plan_type: RegionType = None,
         os: str = None,
         capacity: int = None,
-    ) -> VultrPagination[PlanItem]:
+    ) -> VultrPagination[Plan]:
         """Get a list of all VPS plans at Vultr. The list can be filtered by `plan_type`.
 
         Args:
@@ -71,18 +72,18 @@ class Plan(BaseVultrV2):
             capacity: The capacity of the VultrPagination[PlanItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[PlanItem]: A list-like object of `PlanItem` object.
+            VultrPagination[Plan]: A list-like object of `PlanItem` object.
         """
         _extra_params = {
             "type": plan_type and plan_type.value,
             "os": os,
         }
         fetcher = partial(self._get, endpoint="/plans")
-        return VultrPagination[PlanItem](
+        return VultrPagination[Plan](
             fetcher=fetcher,
             cursor=cursor,
             page_size=per_page,
-            return_type=PlanItem,
+            return_type=Plan,
             capacity=capacity,
             **_extra_params,
         )

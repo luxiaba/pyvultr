@@ -13,6 +13,7 @@ from pyvultr.utils.box import remove_none
 log = logging.getLogger(__name__)
 DEFAULT_TIMEOUT = 10.00
 ENV_TOKEN_NAME = "VULTR_API_KEY"  # nosec: false B105(hardcoded_password_string) by bandit
+_session = requests.Session()
 
 
 @unique
@@ -36,7 +37,7 @@ class BaseAPI(ABC):
         kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
         self.before_request(method=method, url=_url, kwargs=kwargs)
 
-        resp = requests.request(method=method.value, url=_url, **kwargs)
+        resp = _session.request(method=method.value, url=_url, **kwargs)
 
         if not resp.ok:
             log.error(f"request to {self.__class__.__name__} {_url} failed: {resp.text}")

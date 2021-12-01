@@ -5,20 +5,20 @@ from urllib.parse import urljoin
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
-from .enum import ACL
+from .enums import ACL
 
 
 @dataclass
 class UserInfo(BaseDataclass):
-    id: str
-    api_enabled: bool
-    email: str
-    acls: List[str]
-    name: str = None
-    password: str = None
+    id: str  # The User's id.
+    api_enabled: bool  # Permit API access for this User.
+    email: str  # The User's email address.
+    acls: List[str]  # An array of permission granted.
+    name: str = None  # The User's name.
+    password: str = None  # The User's password.
 
 
-class User(BaseVultrV2):
+class UserAPI(BaseVultrV2):
     """Vultr User API.
 
     Reference: https://www.vultr.com/zh/api/#tag/users
@@ -27,7 +27,7 @@ class User(BaseVultrV2):
     Users have unique API keys, which respect the permission for that user.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):

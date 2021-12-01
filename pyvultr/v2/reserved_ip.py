@@ -5,11 +5,11 @@ from urllib.parse import urljoin
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
-from .enum import IPType
+from .enums import IPType
 
 
 @dataclass
-class ReservedIPItem(BaseDataclass):
+class ReservedIP(BaseDataclass):
     id: str
     region: str
     ip_type: str
@@ -19,7 +19,7 @@ class ReservedIPItem(BaseDataclass):
     instance_id: str
 
 
-class ReservedIP(BaseVultrV2):
+class ReservedIPAPI(BaseVultrV2):
     """Vultr ReservedIP API.
 
     Reference: https://www.vultr.com/zh/api/#tag/reserved-ip
@@ -28,7 +28,7 @@ class ReservedIP(BaseVultrV2):
     Reserved IPs can also be used as floating addresses for high-availability.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -39,7 +39,7 @@ class ReservedIP(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "reserved-ips")
 
-    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[ReservedIPItem]:
+    def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[ReservedIP]:
         """List all Reserved IPs in your account.
 
         Args:
@@ -48,17 +48,17 @@ class ReservedIP(BaseVultrV2):
             capacity: The capacity of the VultrPagination[ReservedIPItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ReservedIPItem]: A list-like object of `ReservedIPItem` object.
+            VultrPagination[ReservedIP]: A list-like object of `ReservedIPItem` object.
         """
-        return VultrPagination[ReservedIPItem](
+        return VultrPagination[ReservedIP](
             fetcher=self._get,
             cursor=cursor,
             page_size=per_page,
-            return_type=ReservedIPItem,
+            return_type=ReservedIP,
             capacity=capacity,
         )
 
-    def create(self, region: str, ip_type: IPType, label: str = None) -> ReservedIPItem:
+    def create(self, region: str, ip_type: IPType, label: str = None) -> ReservedIP:
         """Create a new Reserved IP.
 
         The `region` and `ip_type` attributes are required.
@@ -69,7 +69,7 @@ class ReservedIP(BaseVultrV2):
             label: The user-supplied label.
 
         Returns:
-            ReservedIPItem: The Reserved IP object.
+            ReservedIP: The Reserved IP object.
         """
         _json = {
             "region": region,
@@ -77,19 +77,19 @@ class ReservedIP(BaseVultrV2):
             "label": label,
         }
         resp = self._post(json=_json)
-        return ReservedIPItem.from_dict(data=get_only_value(resp))
+        return ReservedIP.from_dict(data=get_only_value(resp))
 
-    def get(self, reserved_ip: str) -> ReservedIPItem:
+    def get(self, reserved_ip: str) -> ReservedIP:
         """Get information about a Reserved IP.
 
         Args:
             reserved_ip: The Reserved IP id.
 
         Returns:
-            ReservedIPItem: The Reserved IP object.
+            ReservedIP: The Reserved IP object.
         """
         resp = self._get(f"/{reserved_ip}")
-        return ReservedIPItem.from_dict(data=get_only_value(resp))
+        return ReservedIP.from_dict(data=get_only_value(resp))
 
     def attach(self, reserved_ip: str, instance_id: str):
         """Attach a Reserved IP to an compute instance or a baremetal instance - `instance_id`.
@@ -119,7 +119,7 @@ class ReservedIP(BaseVultrV2):
         """
         return self._post(f"/{reserved_ip}/detach")
 
-    def to_reserved(self, ip_address: str, label: str = None) -> ReservedIPItem:
+    def to_reserved(self, ip_address: str, label: str = None) -> ReservedIP:
         """Convert the `ip_address` of an existing instance into a Reserved IP.
 
         Args:
@@ -127,14 +127,14 @@ class ReservedIP(BaseVultrV2):
             label: A user-supplied label for this IP address.
 
         Returns:
-            ReservedIPItem: The Reserved IP object.
+            ReservedIP: The Reserved IP object.
         """
         _json = {
             "ip_address": ip_address,
             "label": label,
         }
         resp = self._post("/convert", json=_json)
-        return ReservedIPItem.from_dict(get_only_value(resp))
+        return ReservedIP.from_dict(get_only_value(resp))
 
     def delete(self, reserved_ip: str):
         """Delete a Reserved IP.

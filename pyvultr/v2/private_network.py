@@ -8,16 +8,17 @@ from .base import BaseVultrV2
 
 
 @dataclass
-class PrivateNetworkItem(BaseDataclass):
-    id: str
+class PrivateNetwork(BaseDataclass):
+    id: str  # A unique ID for the Private Network.
+    # The Region id where the instance is located, check `RegionAPI.list` and `RegionItem.id` for available regions.
     region: str
-    date_created: str
-    description: str
-    v4_subnet: str
-    v4_subnet_mask: int
+    date_created: str  # Date the network was created.
+    description: str  # A description of the private network.
+    v4_subnet: str  # The IPv4 network address. For example: 10.99.0.0.
+    v4_subnet_mask: int  # The number of bits for the netmask in CIDR notation. Example: 24.
 
 
-class PrivateNetwork(BaseVultrV2):
+class PrivateNetworkAPI(BaseVultrV2):
     """Vultr PrivateNetwork API.
 
     Reference: https://www.vultr.com/zh/api/#tag/private-Networks
@@ -27,7 +28,7 @@ class PrivateNetwork(BaseVultrV2):
     An instance can connect to multiple private networks and you may have up to 5 private networks per region.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -43,7 +44,7 @@ class PrivateNetwork(BaseVultrV2):
         per_page: int = None,
         cursor: str = None,
         capacity: int = None,
-    ) -> VultrPagination[PrivateNetworkItem]:
+    ) -> VultrPagination[PrivateNetwork]:
         """Get a list of all Private Networks in your account.
 
         Args:
@@ -52,13 +53,13 @@ class PrivateNetwork(BaseVultrV2):
             capacity: The capacity of the VultrPagination[PrivateNetworkItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[PrivateNetworkItem]: A list-like object of `PrivateNetworkItem` object.
+            VultrPagination[PrivateNetwork]: A list-like object of `PrivateNetworkItem` object.
         """
-        return VultrPagination[PrivateNetworkItem](
+        return VultrPagination[PrivateNetwork](
             fetcher=self._get,
             cursor=cursor,
             page_size=per_page,
-            return_type=PrivateNetworkItem,
+            return_type=PrivateNetwork,
             capacity=capacity,
         )
 
@@ -68,7 +69,7 @@ class PrivateNetwork(BaseVultrV2):
         description: str = None,
         v4_subnet: str = None,
         v4_subnet_mask: int = None,
-    ) -> PrivateNetworkItem:
+    ) -> PrivateNetwork:
         """Create a new Private Network in a region.
 
         Private networks should use RFC1918 private address space:
@@ -83,7 +84,7 @@ class PrivateNetwork(BaseVultrV2):
             v4_subnet_mask: The number of bits for the netmask in CIDR notation. Example: 24.
 
         Returns:
-            PrivateNetworkItem: PrivateNetworkItem object.
+            PrivateNetwork: PrivateNetworkItem object.
         """
         _json = {
             "region": region,
@@ -92,19 +93,19 @@ class PrivateNetwork(BaseVultrV2):
             "v4_subnet_mask": v4_subnet_mask,
         }
         resp = self._post(json=_json)
-        return PrivateNetworkItem.from_dict(get_only_value(resp))
+        return PrivateNetwork.from_dict(get_only_value(resp))
 
-    def get(self, network_id: str) -> PrivateNetworkItem:
+    def get(self, network_id: str) -> PrivateNetwork:
         """Get information about a Private Network.
 
         Args:
             network_id: The Network ID.
 
         Returns:
-            PrivateNetworkItem: PrivateNetworkItem object.
+            PrivateNetwork: PrivateNetworkItem object.
         """
         resp = self._get(f"/{network_id}")
-        return PrivateNetworkItem.from_dict(get_only_value(resp))
+        return PrivateNetwork.from_dict(get_only_value(resp))
 
     def update(self, network_id: str, description: str):
         """Update information for a Private Network.

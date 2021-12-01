@@ -1,7 +1,7 @@
 import uuid
 
 from pyvultr.base_api import SupportHttpMethod
-from pyvultr.v2 import BlockStorageItem
+from pyvultr.v2 import BlockStorage
 from tests.v2 import BaseTestV2
 
 
@@ -10,10 +10,10 @@ class TestBlockStorage(BaseTestV2):
         """Test list block storages."""
         with self._get("response/blocks") as mock:
             _excepted_result = mock.python_body["blocks"][0]
-            excepted_result = BlockStorageItem.from_dict(_excepted_result)
+            excepted_result = BlockStorage.from_dict(_excepted_result)
 
             _real_result = self.api_v2.block_storage.list()
-            real_result: BlockStorageItem = _real_result.first()
+            real_result: BlockStorage = _real_result.first()
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/blocks")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)
@@ -21,12 +21,12 @@ class TestBlockStorage(BaseTestV2):
 
     def test_create(self):
         """Test list block storages."""
-        with self._post("response/block", expected_returned=BlockStorageItem, status_code=202) as mock:
+        with self._post("response/block", expected_returned=BlockStorage, status_code=202) as mock:
             excepted_result = mock.python_body
 
             region = "test_region"
             size_gb = 10
-            real_result: BlockStorageItem = self.api_v2.block_storage.create(region=region, size_gb=size_gb)
+            real_result: BlockStorage = self.api_v2.block_storage.create(region=region, size_gb=size_gb)
 
             self.assertEqual(mock.url, "https://api.vultr.com/v2/blocks")
             self.assertEqual(mock.method, SupportHttpMethod.POST.value)
@@ -37,11 +37,11 @@ class TestBlockStorage(BaseTestV2):
 
     def test_get(self):
         """Test get block storage."""
-        with self._get("response/block", expected_returned=BlockStorageItem) as mock:
+        with self._get("response/block", expected_returned=BlockStorage) as mock:
             excepted_result = mock.python_body
 
             block_storage_id = str(uuid.uuid4())
-            real_result: BlockStorageItem = self.api_v2.block_storage.get(block_storage_id)
+            real_result: BlockStorage = self.api_v2.block_storage.get(block_storage_id)
 
             self.assertEqual(mock.url, f"https://api.vultr.com/v2/blocks/{block_storage_id}")
             self.assertEqual(mock.method, SupportHttpMethod.GET.value)

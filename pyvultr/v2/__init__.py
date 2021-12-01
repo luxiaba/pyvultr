@@ -1,97 +1,86 @@
-from .account import Account, AccountInfo
-from .application import Application, ApplicationItem
-from .backup import Backup, BackupItem
-from .bare_metal import (
-    BareMetal,
-    BareMetalAvailableUpgrade,
-    BareMetalBandwidthItem,
-    BareMetalIPV4Item,
-    BareMetalIPV6Item,
-    BareMetalItem,
-    BareMetalUserData,
-    BareMetalVNC,
-)
-from .billing import Bill, Billing, Invoice, InvoiceItem
-from .block_storage import BlockStorage, BlockStorageItem
-from .dns import DNS, SOA, DNSRecord, Domain
-from .firewall import Firewall, FirewallGroup, FirewallRule
+from .account import AccountAPI, AccountInfo
+from .application import Application, ApplicationAPI
+from .backup import Backup, BackupAPI
+from .bare_metal import BareMetal, BareMetalAPI, BareMetalAvailableUpgrade, BareMetalVNC, ReqBareMetal
+from .billing import Bill, BillingAPI, Invoice, InvoiceItem
+from .block_storage import BlockStorage, BlockStorageAPI
+from .dns import DNSAPI, SOA, DNSRecord, Domain
+from .firewall import FirewallAPI, FirewallGroup, FirewallRule
 from .instance import (
     AvailableUpgrade,
     BackupSchedule,
     BandwidthItem,
     Instance,
-    InstanceItem,
+    InstanceAPI,
     InstancePrivateNetworkItem,
     IPv4Item,
     IPv6Item,
     IPv6ReverseItem,
     ISOStatus,
+    ReqInstance,
     RestoreStatus,
     UserData,
-    V6NetworkItem,
 )
-from .iso import ISO, ISOItem, PublicISOItem
+from .iso import ISO, ISOAPI, PublicISOItem
 from .kubernetes import (
-    ClusterItem,
+    Cluster,
     ClusterNode,
-    ClusterNodePool,
     ClusterNodePoolFull,
     ClusterResource,
     ClusterResourceItem,
-    Kubernetes,
+    KubernetesAPI,
+    ReqClusterNodePool,
 )
 from .load_balance import (
     LoadBalance,
+    LoadBalanceAPI,
     LoadBalanceFirewallRule,
     LoadBalanceForwardRule,
     LoadBalanceGenericInfo,
     LoadBalanceHealthCheck,
-    LoadBalanceItem,
 )
-from .object_storage import ObjectStorage, ObjectStorageClusterItem, ObjectStorageItem, ObjectStorageS3Credential
-from .operating_system import OperatingSystem, OSItem
-from .plan import BareMetalPlanItem, Plan, PlanItem
-from .private_network import PrivateNetwork, PrivateNetworkItem
-from .region import Region, RegionItem
-from .reserved_ip import ReservedIP, ReservedIPItem
-from .snapshot import Snapshot, SnapshotItem
-from .ssh_key import SSHKey, SSHKeyItem
-from .startup_script import StartupScript, StartupScriptItem
-from .user import User, UserInfo
+from .object_storage import ObjectStorage, ObjectStorageAPI, ObjectStorageClusterItem, ObjectStorageS3Credential
+from .operating_system import OS, OperatingSystemAPI
+from .plan import BareMetalPlanItem, Plan, PlanAPI
+from .private_network import PrivateNetwork, PrivateNetworkAPI
+from .region import Region, RegionAPI
+from .reserved_ip import ReservedIP, ReservedIPAPI
+from .snapshot import Snapshot, SnapshotAPI
+from .ssh_key import SSHKey, SSHKeyAPI
+from .startup_script import StartupScript, StartupScriptAPI
+from .user import UserAPI, UserInfo
 
 __all__ = [
-    "Account",
+    "AccountAPI",
     "AccountInfo",
+    "ApplicationAPI",
     "Application",
-    "ApplicationItem",
+    "BackupAPI",
     "Backup",
-    "BackupItem",
-    "BareMetal",
+    "ReqBareMetal",
+    "BareMetalAPI",
     "BareMetalAvailableUpgrade",
-    "BareMetalBandwidthItem",
-    "BareMetalIPV4Item",
-    "BareMetalIPV6Item",
-    "BareMetalItem",
-    "BareMetalUserData",
+    "BareMetal",
     "BareMetalVNC",
-    "Billing",
+    "BillingAPI",
     "Bill",
     "Invoice",
     "InvoiceItem",
+    "BlockStorageAPI",
     "BlockStorage",
-    "BlockStorageItem",
-    "DNS",
+    "DNSAPI",
+    "ReqInstance",
     "SOA",
     "DNSRecord",
     "Domain",
-    "Firewall",
+    "FirewallAPI",
     "FirewallGroup",
     "FirewallRule",
     "AvailableUpgrade",
     "BackupSchedule",
     "BandwidthItem",
+    "InstanceAPI",
     "Instance",
-    "InstanceItem",
     "IPv4Item",
     "IPv6Item",
     "IPv6ReverseItem",
@@ -99,44 +88,43 @@ __all__ = [
     "InstancePrivateNetworkItem",
     "RestoreStatus",
     "UserData",
-    "V6NetworkItem",
+    "ISOAPI",
     "ISO",
-    "ISOItem",
     "PublicISOItem",
-    "ClusterItem",
+    "Cluster",
     "ClusterNode",
-    "ClusterNodePool",
+    "ReqClusterNodePool",
     "ClusterNodePoolFull",
     "ClusterResource",
     "ClusterResourceItem",
-    "Kubernetes",
-    "LoadBalance",
+    "KubernetesAPI",
+    "LoadBalanceAPI",
     "LoadBalanceFirewallRule",
     "LoadBalanceForwardRule",
     "LoadBalanceGenericInfo",
     "LoadBalanceHealthCheck",
-    "LoadBalanceItem",
-    "ObjectStorage",
+    "LoadBalance",
+    "ObjectStorageAPI",
     "ObjectStorageClusterItem",
-    "ObjectStorageItem",
+    "ObjectStorage",
     "ObjectStorageS3Credential",
-    "OperatingSystem",
-    "OSItem",
-    "Plan",
+    "OperatingSystemAPI",
+    "OS",
+    "PlanAPI",
     "BareMetalPlanItem",
-    "PlanItem",
+    "Plan",
+    "PrivateNetworkAPI",
     "PrivateNetwork",
-    "PrivateNetworkItem",
+    "RegionAPI",
     "Region",
-    "RegionItem",
+    "ReservedIPAPI",
     "ReservedIP",
-    "ReservedIPItem",
+    "SnapshotAPI",
     "Snapshot",
-    "SnapshotItem",
+    "SSHKeyAPI",
     "SSHKey",
-    "SSHKeyItem",
+    "StartupScriptAPI",
     "StartupScript",
-    "StartupScriptItem",
-    "User",
+    "UserAPI",
     "UserInfo",
 ]

@@ -6,34 +6,41 @@ from urllib.parse import urljoin
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
 from .base import BaseVultrV2
-from .enum import FirewallProtocol, IPType
+from .enums import FirewallProtocol, IPType
 
 
 @dataclass
 class FirewallGroup(BaseDataclass):
-    id: str
-    description: str
-    date_created: str
-    date_modified: str
-    instance_count: int
-    rule_count: int
-    max_rule_count: int
+    id: str  # A unique ID for the Firewall Group.
+    description: str  # User-supplied description of this Firewall Group.
+    date_created: str  # Date the Firewall Group was originally created.
+    date_modified: str  # Date of the last modification to this Firewall Group.
+    instance_count: int  # The number of instances linked to this Firewall Group.
+    rule_count: int  # The number of rules in this Firewall Group.
+    max_rule_count: int  # The maximum number of rules allowed for this Firewall Group.
 
 
 @dataclass
 class FirewallRule(BaseDataclass):
-    id: int
-    ip_type: str
-    action: str
-    protocol: str
-    port: str
-    subnet: str
-    subnet_size: int
+    id: int  # A unique ID for the Firewall Rule.
+    action: str  # Action to take when this rule is met, see `enums.FirewallRuleAction` for possible values.
+    protocol: str  # The protocol for this rule, see `enums.FirewallProtocol` for possible values.
+    port: str  # Port or port range for this rule.
+    subnet: str  # The IPv4 network in CIDR notation. Example: 192.0.2.123.
+    subnet_size: int  # The number of bits for the netmask in CIDR notation. Example: 24.
+    # If the source string is given a value of "cloudflare" subnet and subnet_size will both be ignored.
+    # see `enums.FirewallRuleSource` for possible values.
+    # details:
+    # | Value         | Description
+    # | ------------- | ------------------------------------------------------
+    # | ""            | Use the value from `subnet` and `subnet_size`.
+    # | "cloudflare"  | Allow all of Cloudflare's IP space through the firewall
     source: str
-    notes: str
+    notes: str  # User-supplied notes for this rule.
+    ip_type: str  # The type of IP rule, see `enums.IPType` for possible values.
 
 
-class Firewall(BaseVultrV2):
+class FirewallAPI(BaseVultrV2):
     """Vultr Firewall API.
 
     Reference: https://www.vultr.com/zh/api/#tag/firewall
@@ -42,7 +49,7 @@ class Firewall(BaseVultrV2):
     Firewall groups can manage multiple servers with a standard ruleset. You can control multiple groups with the API.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
