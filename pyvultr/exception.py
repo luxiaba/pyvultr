@@ -10,9 +10,11 @@ class APIException(PYVException):
         self.msg = msg
 
     def __repr__(self):
+        """Return a string representation of the exception."""
         return f"<APIException code={self.code} msg={self.msg}>"
 
     def __str__(self):
+        """Return a string representation of the exception."""
         return self.__repr__()
 
 

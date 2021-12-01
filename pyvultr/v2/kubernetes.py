@@ -3,10 +3,9 @@ from functools import partial
 from typing import List, Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -36,6 +35,7 @@ class ClusterNode(BaseDataclass):
     id: str
     label: str
     date_created: str
+    status: str
 
 
 @dataclass
@@ -69,10 +69,12 @@ class ClusterItem(BaseDataclass):
 class Kubernetes(BaseVultrV2):
     """Vultr Kubernetes API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/kubernetes
+
     Vultr Kubernetes Engine is a managed Kubernetes offering.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -89,11 +91,10 @@ class Kubernetes(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[ClusterItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[ClusterItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ClusterItem]: a paginated list of `ClusterItem`.
+            VultrPagination[ClusterItem]: A list-like object of `ClusterItem` object.
         """
         fetcher = partial(self._get, endpoint="/clusters")
         return VultrPagination[ClusterItem](
@@ -123,7 +124,7 @@ class Kubernetes(BaseVultrV2):
             "node_pools": pools and [asdict(i) for i in pools],
         }
         resp = self._post("/clusters", json=_json)
-        return dacite.from_dict(data_class=ClusterItem, data=get_only_value(resp))
+        return ClusterItem.from_dict(get_only_value(resp))
 
     def get(self, vke_id: str) -> ClusterItem:
         """Get Kubernetes Cluster.
@@ -135,7 +136,7 @@ class Kubernetes(BaseVultrV2):
             ClusterItem: A `ClusterItem` object.
         """
         resp = self._get(f"/clusters/{vke_id}")
-        return dacite.from_dict(data_class=ClusterItem, data=get_only_value(resp))
+        return ClusterItem.from_dict(get_only_value(resp))
 
     def update(self, vke_id: str, label: str):
         """Update Kubernetes Cluster.
@@ -187,7 +188,7 @@ class Kubernetes(BaseVultrV2):
             ClusterResource: A `ClusterResource` object.
         """
         resp = self._get(f"/clusters/{vke_id}/resources")
-        return dacite.from_dict(data_class=ClusterResource, data=get_only_value(resp))
+        return ClusterResource.from_dict(get_only_value(resp))
 
     def list_node_pools(
         self,
@@ -202,11 +203,10 @@ class Kubernetes(BaseVultrV2):
             vke_id: The Cluster ID.
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[ClusterNodePoolFull],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[ClusterNodePoolFull], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ClusterNodePoolFull]: a paginated list of `ClusterItem`.
+            VultrPagination[ClusterNodePoolFull]: A list-like object of `ClusterItem` object.
         """
         fetcher = partial(self._get, endpoint=f"/clusters/{vke_id}/node-pools")
         return VultrPagination[ClusterNodePoolFull](
@@ -228,7 +228,7 @@ class Kubernetes(BaseVultrV2):
             ClusterNodePoolFull: A `ClusterNodePoolFull` object.
         """
         resp = self._post(f"/clusters/{vke_id}/node-pools", json=asdict(node_pool))
-        return dacite.from_dict(data_class=ClusterNodePoolFull, data=get_only_value(resp))
+        return ClusterNodePoolFull.from_dict(get_only_value(resp))
 
     def get_node_pool(self, vke_id: str, node_pool_id: str) -> ClusterNodePoolFull:
         """Get NodePool from a Kubernetes Cluster.
@@ -241,7 +241,7 @@ class Kubernetes(BaseVultrV2):
             ClusterNodePoolFull: A `ClusterNodePoolFull` object.
         """
         resp = self._get(f"/clusters/{vke_id}/node-pools/{node_pool_id}")
-        return dacite.from_dict(data_class=ClusterNodePoolFull, data=get_only_value(resp))
+        return ClusterNodePoolFull.from_dict(get_only_value(resp))
 
     def update_node_pool(
         self,
@@ -266,7 +266,7 @@ class Kubernetes(BaseVultrV2):
             "tag": tag,
         }
         resp = self._patch(f"/clusters/{vke_id}/node-pools/{node_pool_id}", json=_json)
-        return dacite.from_dict(data_class=ClusterNodePoolFull, data=get_only_value(resp))
+        return ClusterNodePoolFull.from_dict(get_only_value(resp))
 
     def delete_node_pool(self, vke_id: str, node_pool_id: str):
         """Delete a NodePool from a Kubernetes Cluster.

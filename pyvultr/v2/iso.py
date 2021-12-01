@@ -2,10 +2,9 @@ from dataclasses import dataclass
 from functools import partial
 from typing import Optional
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -30,10 +29,12 @@ class PublicISOItem(BaseDataclass):
 class ISO(BaseVultrV2):
     """Vultr ISO API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/iso
+
     Upload and boot instances from your ISO, or choose one from our public ISO library. See our ISO documentation.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -45,11 +46,10 @@ class ISO(BaseVultrV2):
         Args:
             per_page: number of items requested per page. Default is 100 and Max is 500.
             cursor: cursor for paging.
-            capacity: the capacity of the VultrPagination[ISOItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[ISOItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ISOItem]: A paginated list of `ISOItem`.
+            VultrPagination[ISOItem]: A list-like object of `ISOItem` object.
         """
         fetcher = partial(self._get, endpoint="/iso")
         return VultrPagination[ISOItem](
@@ -72,8 +72,8 @@ class ISO(BaseVultrV2):
         _json = {
             "url": url,
         }
-        resp = self._post(json=_json)
-        return dacite.from_dict(data_class=ISOItem, data=get_only_value(resp))
+        resp = self._post("/iso", json=_json)
+        return ISOItem.from_dict(get_only_value(resp))
 
     def get(self, iso_id: str) -> ISOItem:
         """Get information for an ISO.
@@ -85,7 +85,7 @@ class ISO(BaseVultrV2):
             ISOItem: An ISOItem object.
         """
         resp = self._get(f"/iso/{iso_id}")
-        return dacite.from_dict(data_class=ISOItem, data=get_only_value(resp))
+        return ISOItem.from_dict(get_only_value(resp))
 
     def delete(self, iso_id: str):
         """Delete an ISO.
@@ -110,11 +110,10 @@ class ISO(BaseVultrV2):
         Args:
             per_page: number of items requested per page. Default is 100 and Max is 500.
             cursor: cursor for paging.
-            capacity: the capacity of the VultrPagination[PublicISOItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[PublicISOItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[PublicISOItem]: a paginated list of `PublicISOItem`.
+            VultrPagination[PublicISOItem]: A list-like object of `PublicISOItem` object.
         """
         fetcher = partial(self._get, endpoint="/iso-public")
         return VultrPagination[PublicISOItem](

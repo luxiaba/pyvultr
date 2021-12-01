@@ -3,8 +3,9 @@ from functools import partial
 from typing import List, Optional
 
 from pyvultr.utils import BaseDataclass, VultrPagination
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import RegionType
+
+from .base import BaseVultrV2
+from .enum import RegionType
 
 
 @dataclass
@@ -38,12 +39,14 @@ class BareMetalPlanItem(BaseDataclass):
 class Plan(BaseVultrV2):
     """Vultr Plan API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/plans
+
     A Plan is a particular configuration of vCPU, RAM, SSD, and bandwidth to deploy an Instance.
     Not all Plans are available in all Regions.
     You can browse plans in the Customer Portal or get a list of Plans from the API.
 
     Attributes
-        :api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        :api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -65,11 +68,10 @@ class Plan(BaseVultrV2):
             cursor: Cursor for paging.
             plan_type: Filter the results by plan_type.
             os: Filter the results by operating system.
-            capacity: the capacity of the VultrPagination[PlanItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[PlanItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[PlanItem]: a paginated list of `PlanItem`.
+            VultrPagination[PlanItem]: A list-like object of `PlanItem` object.
         """
         _extra_params = {
             "type": plan_type and plan_type.value,
@@ -96,11 +98,10 @@ class Plan(BaseVultrV2):
         Args:
             per_page: number of items requested per page. Default is 100 and Max is 500.
             cursor: cursor for paging.
-            capacity: the capacity of the `VultrPagination[BareMetalPlanItem]`,
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the `VultrPagination[BareMetalPlanItem]`, see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[BareMetalPlanItem]: A paginated list of `BareMetalPlanItem`.
+            VultrPagination[BareMetalPlanItem]: A list-like object of `BareMetalPlanItem` object.
         """
         fetcher = partial(self._get, endpoint="/plans-metal")
         return VultrPagination[BareMetalPlanItem](

@@ -3,7 +3,8 @@ from functools import partial
 from typing import Optional
 
 from pyvultr.utils import BaseDataclass, VultrPagination
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -17,11 +18,13 @@ class OSItem(BaseDataclass):
 class OperatingSystem(BaseVultrV2):
     """Vultr OS API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/os
+
     We have a wide range of operating systems available to deploy server instances.
     You can also upload an ISO or choose from our public ISO library.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -33,11 +36,10 @@ class OperatingSystem(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[OSItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[OSItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[OSItem]: a paginated list of `OSItem`.
+            VultrPagination[OSItem]: A list-like object of `OSItem` object.
         """
         fetcher = partial(self._get, endpoint="/os")
         return VultrPagination[OSItem](

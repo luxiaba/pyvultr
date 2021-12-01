@@ -3,18 +3,17 @@ from functools import partial
 from typing import List, Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import DNSRecordType
+
+from .base import BaseVultrV2
+from .enum import DNSRecordType
 
 
 @dataclass
 class Domain(BaseDataclass):
     domain: str
-    date_created: str
     dns_sec: str
+    date_created: str = None
 
 
 @dataclass
@@ -36,12 +35,14 @@ class DNSRecord(BaseDataclass):
 class DNS(BaseVultrV2):
     """Vultr DNS API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/dns
+
     Vultr offers free DNS hosting for customers' domains.
     The nameservers are on an AnyCAST network and ensure fast DNS resolution.
     When you manage your DNS through the API, you can view the results in your customer portal.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -58,11 +59,10 @@ class DNS(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[Domain],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[Domain], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[Domain]: a paginated list of `Domain`.
+            VultrPagination[Domain]: A list-like object of `Domain` object.
         """
         return VultrPagination[Domain](
             fetcher=self._get,
@@ -89,7 +89,7 @@ class DNS(BaseVultrV2):
             "dns_sec": dns_sec,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=Domain, data=get_only_value(resp))
+        return Domain.from_dict(data=get_only_value(resp))
 
     def get_domain(self, dns_domain: str) -> Domain:
         """Get information for the DNS Domain.
@@ -101,7 +101,7 @@ class DNS(BaseVultrV2):
             Domain: A `Domain` object.
         """
         resp = self._get(f"/{dns_domain}")
-        return dacite.from_dict(data_class=Domain, data=get_only_value(resp))
+        return Domain.from_dict(data=get_only_value(resp))
 
     def update_domain(self, dns_domain: str, dns_sec: str):
         """Update the DNS Domain.
@@ -141,7 +141,7 @@ class DNS(BaseVultrV2):
             SOA: A `SOA` object.
         """
         resp = self._get(f"/{dns_domain}/soa")
-        return dacite.from_dict(data_class=SOA, data=get_only_value(resp))
+        return SOA.from_dict(get_only_value(resp))
 
     def update_soa(self, dns_domain: str, ns_primary: str = None, email: str = None):
         """Update the SOA information for the DNS Domain.
@@ -205,7 +205,7 @@ class DNS(BaseVultrV2):
             "priority": priority,
         }
         resp = self._post(f"/{dns_domain}/records", json=_json)
-        return dacite.from_dict(data_class=DNSRecord, data=get_only_value(resp))
+        return DNSRecord.from_dict(get_only_value(resp))
 
     def list_records(
         self,
@@ -220,11 +220,10 @@ class DNS(BaseVultrV2):
             dns_domain: The DNS Domain.
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[DNSRecord],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[DNSRecord], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[DNSRecord]: a paginated list of `DNSRecord`.
+            VultrPagination[DNSRecord]: A list-like object of `DNSRecord` object.
         """
         fetcher = partial(self._get, endpoint=f"/{dns_domain}/records")
         return VultrPagination[DNSRecord](
@@ -245,8 +244,8 @@ class DNS(BaseVultrV2):
         Returns:
             DNSRecord: A `DNSRecord` object.
         """
-        reps = self._get(f"/{dns_domain}/records/{record_id}")
-        return dacite.from_dict(data_class=DNSRecord, data=get_only_value(reps))
+        resp = self._get(f"/{dns_domain}/records/{record_id}")
+        return DNSRecord.from_dict(get_only_value(resp))
 
     def update_record(
         self,

@@ -2,10 +2,9 @@ from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -24,11 +23,13 @@ class BlockStorageItem(BaseDataclass):
 class BlockStorage(BaseVultrV2):
     """Vultr BlockStorage API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/block
+
     Block Storage volumes are highly-available, redundant, SSD backed, and expandable from 10 GB to 10,000 GB.
     Block storage volumes can be formatted with your choice of filesystems and moved between server instances as needed.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -45,11 +46,10 @@ class BlockStorage(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[BlockStorageItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[BlockStorageItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[BlockStorageItem]: a paginated list of `BlockStorageItem`.
+            VultrPagination[BlockStorageItem]: A list-like object of `BlockStorageItem` object.
         """
         return VultrPagination[BlockStorageItem](
             fetcher=self._get,
@@ -76,7 +76,7 @@ class BlockStorage(BaseVultrV2):
             "label": label,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=BlockStorageItem, data=get_only_value(resp))
+        return BlockStorageItem.from_dict(get_only_value(resp))
 
     def get(self, block_id: str) -> BlockStorageItem:
         """Get information for Block Storage.
@@ -88,7 +88,7 @@ class BlockStorage(BaseVultrV2):
             BlockStorageItem: A `BlockStorageItem` object.
         """
         resp = self._get(f"/{block_id}")
-        return dacite.from_dict(data_class=BlockStorageItem, data=get_only_value(resp))
+        return BlockStorageItem.from_dict(get_only_value(resp))
 
     def update(self, block_id: str, size_gb: int = None, label: str = None):
         """Update information for Block Storage.

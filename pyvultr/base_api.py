@@ -12,7 +12,7 @@ from pyvultr.utils.box import remove_none
 
 log = logging.getLogger(__name__)
 DEFAULT_TIMEOUT = 10.00
-ENV_TOKEN_NAME = "VULTR_API_TOKEN"  # nosec: false B105(hardcoded_password_string) by bandit
+ENV_TOKEN_NAME = "VULTR_API_KEY"  # nosec: false B105(hardcoded_password_string) by bandit
 
 
 @unique
@@ -101,17 +101,17 @@ class SupportVultrAPIVersion(Enum):
 
 class BaseVultrAPI(BaseAPI):
     def __init__(self, version: SupportVultrAPIVersion, api_key: str = None):
-        self.version: SupportVultrAPIVersion = version
+        self.api_version: SupportVultrAPIVersion = version
         self.__token: str = os.getenv(ENV_TOKEN_NAME) or api_key
-        assert bool(self.__token), f"Missing Vultr API token: no {ENV_TOKEN_NAME} or `api_key`"
+        assert bool(self.__token), f"Missing Vultr API token: no {ENV_TOKEN_NAME} env or `api_key` arg"
 
     @property
     def base_url(self) -> str:
         """Get base url for all API in this section."""
-        return f"https://api.vultr.com/{self.version.value}/"
+        return f"https://api.vultr.com/{self.api_version.value}/"
 
     def before_request(self, method: SupportHttpMethod, url: Optional[str], kwargs: Dict):
         """Unified preprocessing before request."""
         headers = kwargs.setdefault("headers", {})
         headers["Authorization"] = f"Bearer {self.__token}"
-        log.debug(f"Vultr API({self.version}) request: method: {method.value}, url: {url}, args: {kwargs}")
+        log.debug(f"Vultr API({self.api_version}) request: method: {method.value}, url: {url}, args: {kwargs}")

@@ -2,10 +2,9 @@ from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -22,13 +21,15 @@ class SnapshotItem(BaseDataclass):
 class Snapshot(BaseVultrV2):
     """Vultr Snapshot API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/snapshot
+
     A snapshot is a point-in-time image of an instance. We do not stop the instance when taking a snapshot.
     Booting from a snapshot is similar to rebooting after a non-graceful restart. Snapshots are physically the
     same as backups, but snapshots are manual while backups run automatically on a schedule.
     See our Snapshot Quickstart Guide for more information.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -45,11 +46,10 @@ class Snapshot(BaseVultrV2):
         Args:
             per_page: number of items requested per page. Default is 100 and Max is 500.
             cursor: cursor for paging.
-            capacity: the capacity of the VultrPagination[SnapshotItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[SnapshotItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[SnapshotItem]: A paginated list of `SnapshotItem`.
+            VultrPagination[SnapshotItem]: A list-like object of `SnapshotItem` object.
         """
         return VultrPagination[SnapshotItem](
             fetcher=self._get,
@@ -74,7 +74,7 @@ class Snapshot(BaseVultrV2):
             "description": description,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=SnapshotItem, data=get_only_value(resp))
+        return SnapshotItem.from_dict(get_only_value(resp))
 
     def create_from_url(self, url: str) -> SnapshotItem:
         """Create a new Snapshot from a RAW image located at `url`.
@@ -89,7 +89,7 @@ class Snapshot(BaseVultrV2):
             "url": url,
         }
         resp = self._post("/create-from-url", json=_json)
-        return dacite.from_dict(data_class=SnapshotItem, data=get_only_value(resp))
+        return SnapshotItem.from_dict(get_only_value(resp))
 
     def get(self, snapshot_id: str) -> SnapshotItem:
         """Get information about a Snapshot.
@@ -101,7 +101,7 @@ class Snapshot(BaseVultrV2):
             SnapshotItem: The Snapshot object.
         """
         resp = self._get(f"/{snapshot_id}")
-        return dacite.from_dict(data_class=SnapshotItem, data=get_only_value(resp))
+        return SnapshotItem.from_dict(get_only_value(resp))
 
     def update(self, snapshot_id: str, description: str):
         """Update the description for a Snapshot.

@@ -16,7 +16,7 @@ class BaseVultrV2(BaseVultrAPI):
     """Vultr Base V2 API.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: str = None):
@@ -43,7 +43,7 @@ class BaseVultrV2(BaseVultrAPI):
             Dict: response json data.
         """
         code, text = resp.status_code, resp.text
-        log.debug(f"Vultr API({self.version}) response: code: {code}, content: {text}")
+        log.debug(f"Vultr API({self.api_version}) response: code: {code}, content: {text}")
 
         if not resp.ok:
             log.error(f"Error in calling Vultr API: code : {code}, resp: {text}")

@@ -3,10 +3,9 @@ from functools import partial
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -40,12 +39,14 @@ class ObjectStorageClusterItem(BaseDataclass):
 class ObjectStorage(BaseVultrV2):
     """Vultr ObjectStorage API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/s3
+
     Object Storage is S3 API compatible. Objects uploaded to object storage can be accessed privately or
     publicly on the web. Object storage supports a virtually unlimited number of objects.
     Control your Object Storage via the API or browse in the Customer Portal.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -67,11 +68,10 @@ class ObjectStorage(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[ObjectStorageItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[ObjectStorageItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ObjectStorageItem]: a paginated list of `ObjectStorageItem`.
+            VultrPagination[ObjectStorageItem]: A list-like object of `ObjectStorageItem` object.
         """
         return VultrPagination[ObjectStorageItem](
             fetcher=self._get,
@@ -96,7 +96,7 @@ class ObjectStorage(BaseVultrV2):
             "label": label,
         }
         resp = self._post(json=_json)
-        return dacite.from_dict(data_class=ObjectStorageItem, data=get_only_value(resp))
+        return ObjectStorageItem.from_dict(get_only_value(resp))
 
     def get(self, object_storage_id: str) -> ObjectStorageItem:
         """Get information about an Object Storage.
@@ -108,7 +108,7 @@ class ObjectStorage(BaseVultrV2):
             ObjectStorageItem: A `ObjectStorageItem` object.
         """
         resp = self._get(f"/{object_storage_id}")
-        return dacite.from_dict(data_class=ObjectStorageItem, data=get_only_value(resp))
+        return ObjectStorageItem.from_dict(get_only_value(resp))
 
     def delete(self, object_storage_id: str):
         """Delete an Object Storage.
@@ -148,7 +148,7 @@ class ObjectStorage(BaseVultrV2):
             ObjectStorageS3Credential: A `ObjectStorageS3Credential` object.
         """
         resp = self._post(f"/{object_storage_id}/regenerate-keys")
-        return dacite.from_dict(data_class=ObjectStorageS3Credential, data=get_only_value(resp))
+        return ObjectStorageS3Credential.from_dict(get_only_value(resp))
 
     def list_clusters(
         self,
@@ -161,11 +161,11 @@ class ObjectStorage(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[ObjectStorageClusterItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[ObjectStorageClusterItem],
+            see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ObjectStorageClusterItem]: a paginated list of `ObjectStorageClusterItem`.
+            VultrPagination[ObjectStorageClusterItem]: A list-like object of `ObjectStorageClusterItem` object.
         """
         fetcher = partial(self._get, endpoint="/clusters")
         return VultrPagination[ObjectStorageClusterItem](

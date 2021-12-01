@@ -3,11 +3,10 @@ from functools import partial
 from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value, merge_args
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import BareMetalUpgradeType
+
+from .base import BaseVultrV2
+from .enum import BareMetalUpgradeType
 
 
 @dataclass
@@ -19,7 +18,7 @@ class BareMetalItem(BaseDataclass):
     main_ip: str
     cpu_count: int
     region: str
-    default_password: str
+    # default_password: str
     date_created: str
     status: str
     netmask_v4: str
@@ -43,13 +42,13 @@ class BareMetalIPV4Item(BaseDataclass):
     gateway: str
     type: str
     reverse: str
-    mac_address: str
+    # mac_address: str  # TODO check with API
 
 
 @dataclass
 class BareMetalIPV6Item(BaseDataclass):
     ip: str
-    netmask: str
+    network: str
     network_size: int
     type: str
 
@@ -79,11 +78,13 @@ class BareMetalVNC(BaseDataclass):
 class BareMetal(BaseVultrV2):
     """Vultr BareMetal API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/baremetal
+
     Bare Metal servers give you access to the underlying physical
     hardware in a single-tenant environment without a virtualization layer.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -100,11 +101,10 @@ class BareMetal(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[BareMetalItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[BareMetalItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[BareMetalItem]: a paginated list of `BareMetalItem`.
+            VultrPagination[BareMetalItem]: A list-like object of `BareMetalItem` object.
         """
         return VultrPagination[BareMetalItem](
             fetcher=self._get,
@@ -138,7 +138,7 @@ class BareMetal(BaseVultrV2):
             "plan": plan,
         }
         resp = self._post(json=merge_args(kwargs, fixed_args))
-        return dacite.from_dict(data_class=BareMetalItem, data=get_only_value(resp))
+        return BareMetalItem.from_dict(get_only_value(resp))
 
     def get(self, bare_metal_id: str) -> BareMetalItem:
         """Get information for a Bare Metal instance.
@@ -150,7 +150,7 @@ class BareMetal(BaseVultrV2):
             BareMetalItem: A `BareMetalItem` object.
         """
         resp = self._get(f"/{bare_metal_id}")
-        return dacite.from_dict(data_class=BareMetalItem, data=get_only_value(resp))
+        return BareMetalItem.from_dict(get_only_value(resp))
 
     def update(self, bare_metal_id: str, **kwargs) -> BareMetalItem:
         """Update a Bare Metal instance.
@@ -166,7 +166,7 @@ class BareMetal(BaseVultrV2):
             BareMetalItem: A `BareMetalItem` object.
         """
         resp = self._patch(f"/{bare_metal_id}", json=kwargs)
-        return dacite.from_dict(data_class=BareMetalItem, data=get_only_value(resp))
+        return BareMetalItem.from_dict(get_only_value(resp))
 
     def delete(self, bare_metal_id: str):
         """Delete a Bare Metal instance.
@@ -193,11 +193,10 @@ class BareMetal(BaseVultrV2):
             bare_metal_id: The Bare Metal instance id.
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[BareMetalIPV4Item],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[BareMetalIPV4Item], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[BareMetalIPV4Item]: a paginated list of `BareMetalIPV4Item`.
+            VultrPagination[BareMetalIPV4Item]: A list-like object of `BareMetalIPV4Item` object.
         """
         fetcher = partial(self._get, endpoint=f"/{bare_metal_id}/ipv4")
         return VultrPagination[BareMetalIPV4Item](
@@ -221,11 +220,10 @@ class BareMetal(BaseVultrV2):
             bare_metal_id: The Bare Metal instance id.
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[BareMetalIPV6Item],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[BareMetalIPV6Item], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[BareMetalIPV6Item]: a paginated list of `BareMetalIPV6Item`.
+            VultrPagination[BareMetalIPV6Item]: A list-like object of `BareMetalIPV6Item` object.
         """
         fetcher = partial(self._get, endpoint=f"/{bare_metal_id}/ipv6")
         return VultrPagination[BareMetalIPV6Item](
@@ -253,7 +251,7 @@ class BareMetal(BaseVultrV2):
         """
         _resp: Dict = self._get(f"/{bare_metal_id}/bandwidth")
         resp = get_only_value(_resp)
-        return {_date: dacite.from_dict(data_class=BareMetalBandwidthItem, data=item) for _date, item in resp.items()}
+        return {_date: BareMetalBandwidthItem.from_dict(item) for _date, item in resp.items()}
 
     def start(self, bare_metal_id: str):
         """Start the Bare Metal instance.
@@ -291,7 +289,7 @@ class BareMetal(BaseVultrV2):
         """
         return self._post(f"/{bare_metal_id}/halt")
 
-    def reinstall(self, bare_metal_id: str):
+    def reinstall(self, bare_metal_id: str) -> BareMetalItem:
         """Reinstall the Bare Metal instance.
 
         Note: This action may take a few extra seconds to complete.
@@ -303,7 +301,8 @@ class BareMetal(BaseVultrV2):
             STATUS CODE: 204
             /NO CONTENT/
         """
-        return self._post(f"/{bare_metal_id}/reinstall")
+        resp = self._post(f"/{bare_metal_id}/reinstall")
+        return BareMetalItem.from_dict(get_only_value(resp))
 
     def batch_start(self, bare_metal_ids: List[str]):
         """Start Bare Metals.
@@ -360,7 +359,7 @@ class BareMetal(BaseVultrV2):
             BareMetalUserData: A `BareMetalUserData` object.
         """
         resp = self._get(f"/{bare_metal_id}/user-data")
-        return dacite.from_dict(data_class=BareMetalUserData, data=get_only_value(resp))
+        return BareMetalUserData.from_dict(get_only_value(resp))
 
     def list_upgrades(self, bare_metal_id: str, upgrade_type: BareMetalUpgradeType = None) -> BareMetalAvailableUpgrade:
         """Get available upgrades for a Bare Metal.
@@ -376,7 +375,7 @@ class BareMetal(BaseVultrV2):
             "type": upgrade_type and upgrade_type.value,
         }
         resp = self._get(f"/{bare_metal_id}/upgrades", params=_params)
-        return dacite.from_dict(data_class=BareMetalAvailableUpgrade, data=get_only_value(resp))
+        return BareMetalAvailableUpgrade.from_dict(get_only_value(resp))
 
     def get_vnc(self, bare_metal_id: str) -> BareMetalVNC:
         """Get the VNC URL for a Bare Metal.
@@ -388,4 +387,4 @@ class BareMetal(BaseVultrV2):
             BareMetalVNC: A `BareMetalVNC` object.
         """
         resp = self._get(f"/{bare_metal_id}/vnc")
-        return dacite.from_dict(data_class=BareMetalVNC, data=get_only_value(resp))
+        return BareMetalVNC.from_dict(get_only_value(resp))

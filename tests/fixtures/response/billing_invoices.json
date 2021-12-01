@@ -1,0 +1,18 @@
+{
+  "billing_invoices": [
+    {
+      "id": 123456,
+      "date": "2021-10-10T00:00:00+00:00",
+      "description": "Invoice #123456",
+      "amount": 5.25,
+      "balance": 10.25
+    }
+  ],
+  "meta": {
+    "total": 1,
+    "links": {
+      "next": "",
+      "prev": ""
+    }
+  }
+}

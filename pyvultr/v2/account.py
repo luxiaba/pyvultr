@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -21,10 +20,12 @@ class AccountInfo(BaseDataclass):
 class Account(BaseVultrV2):
     """Vultr Account API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/account
+
     Read-only information about your user account and billing information.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -37,4 +38,4 @@ class Account(BaseVultrV2):
             AccountInfo: A `AccountInfo` object.
         """
         resp = self._get("/account")
-        return dacite.from_dict(data_class=AccountInfo, data=get_only_value(resp))
+        return AccountInfo.from_dict(get_only_value(resp))

@@ -3,8 +3,9 @@ from typing import List, Optional
 from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import RegionType
+
+from .base import BaseVultrV2
+from .enum import RegionType
 
 
 @dataclass
@@ -19,11 +20,13 @@ class RegionItem(BaseDataclass):
 class Region(BaseVultrV2):
     """Vultr Region API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/region
+
     Instances can be deployed in many Regions on multiple continents.
     Choose any of our worldwide locations to deploy servers near your office or customers for low-latency.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -40,11 +43,10 @@ class Region(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[RegionItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[RegionItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[RegionItem]: a paginated list of `RegionItem`.
+            VultrPagination[RegionItem]: A list-like object of `RegionItem` object.
         """
         return VultrPagination[RegionItem](
             fetcher=self._get,

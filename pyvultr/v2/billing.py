@@ -3,10 +3,9 @@ from functools import partial
 from typing import Optional
 from urllib.parse import urljoin
 
-import dacite
-
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
-from pyvultr.v2.base import BaseVultrV2
+
+from .base import BaseVultrV2
 
 
 @dataclass
@@ -25,7 +24,7 @@ class Invoice(BaseDataclass):
     date: str
     description: str
     amount: float
-    balance: float
+    # balance: float # TODO check with API
 
 
 @dataclass
@@ -43,10 +42,12 @@ class InvoiceItem(BaseDataclass):
 class Billing(BaseVultrV2):
     """Vultr Billing API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/billing
+
     Read-only billing information for your user account.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -63,11 +64,10 @@ class Billing(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[Bill],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[Bill], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[Bill]: a paginated list of `Bill`.
+            VultrPagination[Bill]: A list-like object of `Bill` object.
         """
         fetcher = partial(self._get, endpoint="/history")
         return VultrPagination[Bill](
@@ -84,11 +84,10 @@ class Billing(BaseVultrV2):
         Args:
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
-            capacity: the capacity of the VultrPagination[Invoice],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[Invoice], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[Invoice]: a paginated list of `Invoice`.
+            VultrPagination[Invoice]: A list-like object of `Invoice` object.
         """
         fetcher = partial(self._get, endpoint="/invoices")
         return VultrPagination[Invoice](
@@ -109,7 +108,7 @@ class Billing(BaseVultrV2):
             Invoice: A `Invoice` object.
         """
         resp = self._get(f"/invoices/{invoice_id}")
-        return dacite.from_dict(data_class=Invoice, data=get_only_value(resp))
+        return Invoice.from_dict(get_only_value(resp))
 
     def list_invoice_items(
         self,
@@ -124,11 +123,10 @@ class Billing(BaseVultrV2):
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
             invoice_id: The Invoice ID.
-            capacity: the capacity of the VultrPagination[InvoiceItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[InvoiceItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[InvoiceItem]: a paginated list of `InvoiceItem`.
+            VultrPagination[InvoiceItem]: A list-like object of `InvoiceItem` object.
         """
         fetcher = partial(self._get, endpoint=f"/invoices/{invoice_id}/items")
         return VultrPagination[InvoiceItem](

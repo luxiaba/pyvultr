@@ -3,8 +3,9 @@ from functools import partial
 from typing import Optional
 
 from pyvultr.utils import BaseDataclass, VultrPagination
-from pyvultr.v2.base import BaseVultrV2
-from pyvultr.v2.enum import ApplicationType
+
+from .base import BaseVultrV2
+from .enum import ApplicationType
 
 
 @dataclass
@@ -21,6 +22,8 @@ class ApplicationItem(BaseDataclass):
 class Application(BaseVultrV2):
     """Vultr Application API.
 
+    Reference: https://www.vultr.com/zh/api/#tag/application
+
     One-Click and Marketplace Applications are ready-to-run with minimal configuration.
     We have an extensive documentation library for our Applications.
 
@@ -30,7 +33,7 @@ class Application(BaseVultrV2):
     while Applications with type of one-click should use the id.
 
     Attributes:
-        api_key: Vultr API key, we get it from env variable `VULTR_API_TOKEN` if not provided.
+        api_key: Vultr API key, we get it from env variable `$ENV_TOKEN_NAME` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
@@ -49,11 +52,10 @@ class Application(BaseVultrV2):
             per_page: Number of items requested per page. Default is 100 and Max is 500.
             cursor: Cursor for paging.
             app_type: Filter the results by type.
-            capacity: the capacity of the VultrPagination[ApplicationItem],
-            see `pyvultr.utils.VultrPagination` for detail.
+            capacity: The capacity of the VultrPagination[ApplicationItem], see `VultrPagination` for details.
 
         Returns:
-            VultrPagination[ApplicationItem]: a paginated list of `ApplicationItem`.
+            VultrPagination[ApplicationItem]: A list-like object of `ApplicationItem` object.
         """
         extra_params = {
             "type": app_type and app_type.value,
