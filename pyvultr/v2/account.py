@@ -39,30 +39,4 @@ class AccountAPI(BaseVultrV2):
             AccountInfo: A `AccountInfo` object.
         """
         resp = self._get("/account")
-        return AccountInfo.from_dict(
-            {
-                "balance": 11.2,
-                "pending_charges": 3.4,
-                "name": "test man",
-                "email": "test@xxx.xxx",
-                "acls": [
-                    "manage_users",
-                    "subscriptions_view",
-                    "subscriptions",
-                    "billing",
-                    "support",
-                    "provisioning",
-                    "dns",
-                    "abuse",
-                    "upgrade",
-                    "firewall",
-                    "alerts",
-                    "objstore",
-                    "loadbalancer",
-                    "vke",
-                ],
-                "last_payment_date": "2019-07-16T05:19:50+00:00",
-                "last_payment_amount": -10,
-            }
-        )
         return AccountInfo.from_dict(get_only_value(resp))
