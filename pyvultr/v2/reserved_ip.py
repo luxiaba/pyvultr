@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 from .enums import IPType
 
 
@@ -22,7 +22,7 @@ class ReservedIP(BaseDataclass):
 class ReservedIPAPI(BaseVultrV2):
     """Vultr ReservedIP API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/reserved-ip
+    Reference: https://www.vultr.com/api/#tag/reserved-ip
 
     IP addresses can be reserved and moved between instances.
     Reserved IPs can also be used as floating addresses for high-availability.
@@ -39,6 +39,7 @@ class ReservedIPAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "reserved-ips")
 
+    @command
     def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[ReservedIP]:
         """List all Reserved IPs in your account.
 
@@ -58,6 +59,7 @@ class ReservedIPAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(self, region: str, ip_type: IPType, label: str = None) -> ReservedIP:
         """Create a new Reserved IP.
 
@@ -79,6 +81,7 @@ class ReservedIPAPI(BaseVultrV2):
         resp = self._post(json=_json)
         return ReservedIP.from_dict(data=get_only_value(resp))
 
+    @command
     def get(self, reserved_ip: str) -> ReservedIP:
         """Get information about a Reserved IP.
 
@@ -91,6 +94,7 @@ class ReservedIPAPI(BaseVultrV2):
         resp = self._get(f"/{reserved_ip}")
         return ReservedIP.from_dict(data=get_only_value(resp))
 
+    @command
     def attach(self, reserved_ip: str, instance_id: str):
         """Attach a Reserved IP to an compute instance or a baremetal instance - `instance_id`.
 
@@ -107,6 +111,7 @@ class ReservedIPAPI(BaseVultrV2):
         }
         return self._post(f"/{reserved_ip}/attach", json=_json)
 
+    @command
     def detach(self, reserved_ip: str):
         """Detach a Reserved IP.
 
@@ -119,6 +124,7 @@ class ReservedIPAPI(BaseVultrV2):
         """
         return self._post(f"/{reserved_ip}/detach")
 
+    @command
     def to_reserved(self, ip_address: str, label: str = None) -> ReservedIP:
         """Convert the `ip_address` of an existing instance into a Reserved IP.
 
@@ -136,6 +142,7 @@ class ReservedIPAPI(BaseVultrV2):
         resp = self._post("/convert", json=_json)
         return ReservedIP.from_dict(get_only_value(resp))
 
+    @command
     def delete(self, reserved_ip: str):
         """Delete a Reserved IP.
 

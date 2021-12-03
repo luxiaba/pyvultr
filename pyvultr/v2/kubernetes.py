@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 
 
 @dataclass
@@ -73,7 +73,7 @@ class ClusterResource(BaseDataclass):
 class KubernetesAPI(BaseVultrV2):
     """Vultr Kubernetes API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/kubernetes
+    Reference: https://www.vultr.com/api/#tag/kubernetes
 
     Vultr Kubernetes Engine is a managed Kubernetes offering.
 
@@ -89,6 +89,7 @@ class KubernetesAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "kubernetes")
 
+    @command
     def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[Cluster]:
         """List all Kubernetes clusters currently deployed.
 
@@ -109,6 +110,7 @@ class KubernetesAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(self, region: str, version: str, label: str = None, pools: List[ReqClusterNodePool] = None) -> Cluster:
         """Create Kubernetes Cluster.
 
@@ -130,6 +132,7 @@ class KubernetesAPI(BaseVultrV2):
         resp = self._post("/clusters", json=_json)
         return Cluster.from_dict(get_only_value(resp))
 
+    @command
     def get(self, vke_id: str) -> Cluster:
         """Get Kubernetes Cluster.
 
@@ -142,6 +145,7 @@ class KubernetesAPI(BaseVultrV2):
         resp = self._get(f"/clusters/{vke_id}")
         return Cluster.from_dict(get_only_value(resp))
 
+    @command
     def update(self, vke_id: str, label: str):
         """Update Kubernetes Cluster.
 
@@ -158,6 +162,7 @@ class KubernetesAPI(BaseVultrV2):
         }
         return self._put(f"/clusters/{vke_id}", json=_json)
 
+    @command
     def delete(self, vke_id: str):
         """Delete Kubernetes Cluster.
 
@@ -170,6 +175,7 @@ class KubernetesAPI(BaseVultrV2):
         """
         return self._delete(f"/clusters/{vke_id}")
 
+    @command
     def delete_with_resources(self, vke_id: str):
         """Delete Kubernetes Cluster and all related resources.
 
@@ -182,6 +188,7 @@ class KubernetesAPI(BaseVultrV2):
         """
         return self._delete(f"/clusters/{vke_id}/delete-with-linked-resources")
 
+    @command
     def get_resource(self, vke_id: str) -> ClusterResource:
         """Get the block storage volumes and load balancers deployed by the specified Kubernetes cluster.
 
@@ -194,6 +201,7 @@ class KubernetesAPI(BaseVultrV2):
         resp = self._get(f"/clusters/{vke_id}/resources")
         return ClusterResource.from_dict(get_only_value(resp))
 
+    @command
     def list_node_pools(
         self,
         vke_id: str,
@@ -221,6 +229,7 @@ class KubernetesAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create_node_pool(self, vke_id: str, node_pool: ReqClusterNodePool) -> ClusterNodePoolFull:
         """Create NodePool for a Existing Kubernetes Cluster.
 
@@ -234,6 +243,7 @@ class KubernetesAPI(BaseVultrV2):
         resp = self._post(f"/clusters/{vke_id}/node-pools", json=asdict(node_pool))
         return ClusterNodePoolFull.from_dict(get_only_value(resp))
 
+    @command
     def get_node_pool(self, vke_id: str, node_pool_id: str) -> ClusterNodePoolFull:
         """Get NodePool from a Kubernetes Cluster.
 
@@ -247,6 +257,7 @@ class KubernetesAPI(BaseVultrV2):
         resp = self._get(f"/clusters/{vke_id}/node-pools/{node_pool_id}")
         return ClusterNodePoolFull.from_dict(get_only_value(resp))
 
+    @command
     def update_node_pool(
         self,
         vke_id: str,
@@ -272,6 +283,7 @@ class KubernetesAPI(BaseVultrV2):
         resp = self._patch(f"/clusters/{vke_id}/node-pools/{node_pool_id}", json=_json)
         return ClusterNodePoolFull.from_dict(get_only_value(resp))
 
+    @command
     def delete_node_pool(self, vke_id: str, node_pool_id: str):
         """Delete a NodePool from a Kubernetes Cluster.
 
@@ -285,6 +297,7 @@ class KubernetesAPI(BaseVultrV2):
         """
         return self._delete(f"/clusters/{vke_id}/node-pools/{node_pool_id}")
 
+    @command
     def delete_node_pool_instance(self, vke_id: str, node_pool_id: str, node_id: str):
         """Delete a single NodePool instance from a given NodePool.
 
@@ -299,6 +312,7 @@ class KubernetesAPI(BaseVultrV2):
         """
         return self._delete(f"/clusters/{vke_id}/node-pools/{node_pool_id}/nodes/{node_id}")
 
+    @command
     def recycle_node_pool_instance(self, vke_id: str, node_pool_id: str, node_id: str):
         """Recycle a specific NodePool Instance.
 
@@ -313,6 +327,7 @@ class KubernetesAPI(BaseVultrV2):
         """
         return self._post(f"/clusters/{vke_id}/node-pools/{node_pool_id}/nodes/{node_id}/recycle")
 
+    @command
     def get_config(self, vke_id: str) -> str:
         """Get Kubernetes Cluster KubeConfig.
 
@@ -325,6 +340,7 @@ class KubernetesAPI(BaseVultrV2):
         resp = self._get(f"/clusters/{vke_id}/config")
         return get_only_value(resp)
 
+    @command
     def get_versions(self) -> List[str]:
         """Get a list of supported Kubernetes versions.
 

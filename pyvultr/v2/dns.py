@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 from .enums import DNSRecordType
 
 
@@ -35,7 +35,7 @@ class DNSRecord(BaseDataclass):
 class DNSAPI(BaseVultrV2):
     """Vultr DNS API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/dns
+    Reference: https://www.vultr.com/api/#tag/dns
 
     Vultr offers free DNS hosting for customers' domains.
     The nameservers are on an AnyCAST network and ensure fast DNS resolution.
@@ -53,6 +53,7 @@ class DNSAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "domains")
 
+    @command
     def list_domains(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[Domain]:
         """List all DNS Domains in your account.
 
@@ -72,6 +73,7 @@ class DNSAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create_domain(self, domain: str, ip: str = None, dns_sec: str = None) -> Domain:
         """Create a DNS Domain for `domain`. If no `ip` address is supplied a domain with no records will be created.
 
@@ -91,6 +93,7 @@ class DNSAPI(BaseVultrV2):
         resp = self._post(json=_json)
         return Domain.from_dict(data=get_only_value(resp))
 
+    @command
     def get_domain(self, dns_domain: str) -> Domain:
         """Get information for the DNS Domain.
 
@@ -103,6 +106,7 @@ class DNSAPI(BaseVultrV2):
         resp = self._get(f"/{dns_domain}")
         return Domain.from_dict(data=get_only_value(resp))
 
+    @command
     def update_domain(self, dns_domain: str, dns_sec: str):
         """Update the DNS Domain.
 
@@ -119,6 +123,7 @@ class DNSAPI(BaseVultrV2):
         }
         return self._put(f"/{dns_domain}", json=_json)
 
+    @command
     def delete_domain(self, dns_domain: str):
         """Delete the DNS Domain.
 
@@ -131,6 +136,7 @@ class DNSAPI(BaseVultrV2):
         """
         return self._delete(f"/{dns_domain}")
 
+    @command
     def get_soa(self, dns_domain: str) -> SOA:
         """Get SOA information for the DNS Domain.
 
@@ -143,6 +149,7 @@ class DNSAPI(BaseVultrV2):
         resp = self._get(f"/{dns_domain}/soa")
         return SOA.from_dict(get_only_value(resp))
 
+    @command
     def update_soa(self, dns_domain: str, ns_primary: str = None, email: str = None):
         """Update the SOA information for the DNS Domain.
 
@@ -163,6 +170,7 @@ class DNSAPI(BaseVultrV2):
         }
         return self._patch(f"/{dns_domain}/soa", json=_json)
 
+    @command
     def get_dns_sec(self, dns_domain: str) -> List[str]:
         """Get the DNSSEC information for the DNS Domain.
 
@@ -175,6 +183,7 @@ class DNSAPI(BaseVultrV2):
         resp = self._get(f"/{dns_domain}/dnssec")
         return get_only_value(resp)
 
+    @command
     def create_record(
         self,
         dns_domain: str,
@@ -207,6 +216,7 @@ class DNSAPI(BaseVultrV2):
         resp = self._post(f"/{dns_domain}/records", json=_json)
         return DNSRecord.from_dict(get_only_value(resp))
 
+    @command
     def list_records(
         self,
         dns_domain: str,
@@ -234,6 +244,7 @@ class DNSAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def get_record(self, dns_domain: str, record_id: str) -> DNSRecord:
         """Get information for a DNS Record.
 
@@ -247,6 +258,7 @@ class DNSAPI(BaseVultrV2):
         resp = self._get(f"/{dns_domain}/records/{record_id}")
         return DNSRecord.from_dict(get_only_value(resp))
 
+    @command
     def update_record(
         self,
         dns_domain: str,
@@ -280,6 +292,7 @@ class DNSAPI(BaseVultrV2):
         }
         return self._patch(f"/{dns_domain}/records/{record_id}", json=_json)
 
+    @command
     def delete_record(self, dns_domain: str, record_id: str):
         """Delete the DNS record.
 

@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 from .enums import StartupScriptType
 
 
@@ -21,7 +21,7 @@ class StartupScript(BaseDataclass):
 class StartupScriptAPI(BaseVultrV2):
     """Vultr StartupScript API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/startup
+    Reference: https://www.vultr.com/api/#tag/startup
 
     Vultr allows you to assign two types of scripts to a server.
     Boot scripts configure new deployments, and PXE scripts automatically install operating systems.
@@ -39,6 +39,7 @@ class StartupScriptAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "startup-scripts")
 
+    @command
     def list(
         self,
         per_page: int = None,
@@ -64,6 +65,7 @@ class StartupScriptAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(self, name: str, script: str, script_type: StartupScriptType = None) -> StartupScript:
         """Create a new Startup Script.
 
@@ -85,6 +87,7 @@ class StartupScriptAPI(BaseVultrV2):
         resp = self._post(json=_json)
         return StartupScript.from_dict(data=get_only_value(resp))
 
+    @command
     def get(self, startup_id: str) -> StartupScript:
         """Get information for a Startup Script.
 
@@ -97,6 +100,7 @@ class StartupScriptAPI(BaseVultrV2):
         resp = self._get(f"/{startup_id}")
         return StartupScript.from_dict(data=get_only_value(resp))
 
+    @command
     def update(self, startup_id: str, name: str = None, script: str = None, script_type: StartupScriptType = None):
         """Update a Startup Script.
 
@@ -121,6 +125,7 @@ class StartupScriptAPI(BaseVultrV2):
         }
         return self._patch(f"/{startup_id}", json=_json)
 
+    @command
     def delete(self, startup_id: str):
         """Delete a Startup Script.
 

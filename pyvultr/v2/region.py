@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 from .enums import RegionType
 
 
@@ -20,7 +20,7 @@ class Region(BaseDataclass):
 class RegionAPI(BaseVultrV2):
     """Vultr Region API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/region
+    Reference: https://www.vultr.com/api/#tag/region
 
     Instances can be deployed in many Regions on multiple continents.
     Choose any of our worldwide locations to deploy servers near your office or customers for low-latency.
@@ -37,6 +37,7 @@ class RegionAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "regions")
 
+    @command
     def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[Region]:
         """List all Regions at Vultr.
 
@@ -56,6 +57,7 @@ class RegionAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def list_in_region(self, region: str, region_type: RegionType = None) -> List[str]:
         """Get a list of the available plans in Region `region-id`.
 

@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 
 
 @dataclass
@@ -26,7 +26,7 @@ class BlockStorage(BaseDataclass):
 class BlockStorageAPI(BaseVultrV2):
     """Vultr BlockStorage API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/block
+    Reference: https://www.vultr.com/api/#tag/block
 
     Block Storage volumes are highly-available, redundant, SSD backed, and expandable from 10 GB to 10,000 GB.
     Block storage volumes can be formatted with your choice of filesystems and moved between server instances as needed.
@@ -43,6 +43,7 @@ class BlockStorageAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "blocks")
 
+    @command
     def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[BlockStorage]:
         """List all Block Storage in your account.
 
@@ -62,6 +63,7 @@ class BlockStorageAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(self, region: str, size_gb: int, label: str = None) -> BlockStorage:
         """Create new Block Storage in a `region` with a size of `size_gb`. Size may range between 10 and 10000.
 
@@ -81,6 +83,7 @@ class BlockStorageAPI(BaseVultrV2):
         resp = self._post(json=_json)
         return BlockStorage.from_dict(get_only_value(resp))
 
+    @command
     def get(self, block_id: str) -> BlockStorage:
         """Get information for Block Storage.
 
@@ -93,6 +96,7 @@ class BlockStorageAPI(BaseVultrV2):
         resp = self._get(f"/{block_id}")
         return BlockStorage.from_dict(get_only_value(resp))
 
+    @command
     def update(self, block_id: str, size_gb: int = None, label: str = None):
         """Update information for Block Storage.
 
@@ -111,6 +115,7 @@ class BlockStorageAPI(BaseVultrV2):
         }
         return self._patch(f"/{block_id}", json=_json)
 
+    @command
     def attach(self, block_id: str, instance_id: str, live: bool = None):
         """Attach Block Storage to Instance `instance_id`.
 
@@ -129,6 +134,7 @@ class BlockStorageAPI(BaseVultrV2):
         }
         return self._post(f"/{block_id}/attach", json=_json)
 
+    @command
     def detach(self, block_id: str, live: bool = None):
         """Detach Block Storage.
 
@@ -145,6 +151,7 @@ class BlockStorageAPI(BaseVultrV2):
         }
         return self._post(f"/{block_id}/detach", json=_json)
 
+    @command
     def delete(self, block_id: str):
         """Delete Block Storage.
 

@@ -11,7 +11,7 @@ class TestAccount(BaseTestV2):
         with self._get(status_code=400) as mock:
             with pytest.raises(APIException) as err:
                 self.api_v2.account.get()
-            self.assertIn("APIException code=400", str(err.value))
+            self.assertIn("APIException", str(err.value))
             self.assertEqual(mock.status_code, 400)
 
     def test_get(self):

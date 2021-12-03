@@ -3,13 +3,13 @@ from typing import List, Optional
 
 from pyvultr.utils import BaseDataclass, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 
 
 @dataclass
 class AccountInfo(BaseDataclass):
     name: str  # Your username.
-    email: str  # Your email address.
+    email: str  # Your email.
     acls: List[str]  # An array of permission granted, see `enums.ACL` for details.
     balance: float  # Your current account balance.
     pending_charges: float  # Un-billed charges for this month.
@@ -20,7 +20,7 @@ class AccountInfo(BaseDataclass):
 class AccountAPI(BaseVultrV2):
     """Vultr Account API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/account
+    Reference: https://www.vultr.com/api/#tag/account
 
     Read-only information about your user account and billing information.
 
@@ -31,6 +31,7 @@ class AccountAPI(BaseVultrV2):
     def __init__(self, api_key: Optional[str] = None):
         super().__init__(api_key)
 
+    @command
     def get(self) -> AccountInfo:
         """Get your Vultr account, permission, and billing information.
 
@@ -38,4 +39,30 @@ class AccountAPI(BaseVultrV2):
             AccountInfo: A `AccountInfo` object.
         """
         resp = self._get("/account")
+        return AccountInfo.from_dict(
+            {
+                "balance": 11.2,
+                "pending_charges": 3.4,
+                "name": "test man",
+                "email": "test@xxx.xxx",
+                "acls": [
+                    "manage_users",
+                    "subscriptions_view",
+                    "subscriptions",
+                    "billing",
+                    "support",
+                    "provisioning",
+                    "dns",
+                    "abuse",
+                    "upgrade",
+                    "firewall",
+                    "alerts",
+                    "objstore",
+                    "loadbalancer",
+                    "vke",
+                ],
+                "last_payment_date": "2019-07-16T05:19:50+00:00",
+                "last_payment_amount": -10,
+            }
+        )
         return AccountInfo.from_dict(get_only_value(resp))

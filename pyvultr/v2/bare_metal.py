@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 from .enums import BareMetalUpgradeType
 from .instance import BandwidthItem, IPv4Item, IPv6Item, UserData
 
@@ -91,7 +91,7 @@ class BareMetalVNC(BaseDataclass):
 class BareMetalAPI(BaseVultrV2):
     """Vultr BareMetal API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/baremetal
+    Reference: https://www.vultr.com/api/#tag/baremetal
 
     Bare Metal servers give you access to the underlying physical
     hardware in a single-tenant environment without a virtualization layer.
@@ -108,6 +108,7 @@ class BareMetalAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "bare-metals")
 
+    @command
     def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[BareMetal]:
         """List all Bare Metal instances in your account.
 
@@ -127,6 +128,7 @@ class BareMetalAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(self, bare_metal: ReqBareMetal) -> Optional[BareMetal]:
         """Create a new Bare Metal instance in a region with the desired plan.
 
@@ -157,6 +159,7 @@ class BareMetalAPI(BaseVultrV2):
         resp = self._post(json=bare_metal.to_dict())
         return BareMetal.from_dict(get_only_value(resp))
 
+    @command
     def get(self, bare_metal_id: str) -> BareMetal:
         """Get information for a Bare Metal instance.
 
@@ -169,6 +172,7 @@ class BareMetalAPI(BaseVultrV2):
         resp = self._get(f"/{bare_metal_id}")
         return BareMetal.from_dict(get_only_value(resp))
 
+    @command
     def update(
         self,
         bare_metal_id: str,
@@ -210,6 +214,7 @@ class BareMetalAPI(BaseVultrV2):
         resp = self._patch(f"/{bare_metal_id}", json=update_args)
         return BareMetal.from_dict(get_only_value(resp))
 
+    @command
     def delete(self, bare_metal_id: str):
         """Delete a Bare Metal instance.
 
@@ -222,6 +227,7 @@ class BareMetalAPI(BaseVultrV2):
         """
         return self._delete(f"/{bare_metal_id}")
 
+    @command
     def list_ipv4s(
         self,
         bare_metal_id: str,
@@ -249,6 +255,7 @@ class BareMetalAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def list_ipv6s(
         self,
         bare_metal_id: str,
@@ -276,6 +283,7 @@ class BareMetalAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def get_bandwidth(self, bare_metal_id: str) -> Dict[str, BandwidthItem]:
         """Get bandwidth information for the Bare Metal instance.
 
@@ -295,6 +303,7 @@ class BareMetalAPI(BaseVultrV2):
         resp = get_only_value(_resp)
         return {_date: BandwidthItem.from_dict(item) for _date, item in resp.items()}
 
+    @command
     def start(self, bare_metal_id: str):
         """Start the Bare Metal instance.
 
@@ -307,6 +316,7 @@ class BareMetalAPI(BaseVultrV2):
         """
         return self._post(f"/{bare_metal_id}/start")
 
+    @command
     def reboot(self, bare_metal_id: str):
         """Reboot the Bare Metal instance.
 
@@ -319,6 +329,7 @@ class BareMetalAPI(BaseVultrV2):
         """
         return self._post(f"/{bare_metal_id}/reboot")
 
+    @command
     def halt(self, bare_metal_id: str):
         """Halt the Bare Metal instance.
 
@@ -331,6 +342,7 @@ class BareMetalAPI(BaseVultrV2):
         """
         return self._post(f"/{bare_metal_id}/halt")
 
+    @command
     def reinstall(self, bare_metal_id: str) -> BareMetal:
         """Reinstall the Bare Metal instance.
 
@@ -346,6 +358,7 @@ class BareMetalAPI(BaseVultrV2):
         resp = self._post(f"/{bare_metal_id}/reinstall")
         return BareMetal.from_dict(get_only_value(resp))
 
+    @command
     def batch_start(self, bare_metal_ids: List[str]):
         """Start Bare Metals.
 
@@ -361,6 +374,7 @@ class BareMetalAPI(BaseVultrV2):
         }
         return self._post("/start", json=_json)
 
+    @command
     def batch_reboot(self, bare_metal_ids: List[str]):
         """Reboot Bare Metals.
 
@@ -376,6 +390,7 @@ class BareMetalAPI(BaseVultrV2):
         }
         return self._post("/reboot", json=_json)
 
+    @command
     def batch_halt(self, bare_metal_ids: List[str]):
         """Halt Bare Metals.
 
@@ -391,6 +406,7 @@ class BareMetalAPI(BaseVultrV2):
         }
         return self._post("/halt", json=_json)
 
+    @command
     def get_user_data(self, bare_metal_id: str) -> UserData:
         """Get the user-supplied, base64 encoded user data for a Bare Metal.
 
@@ -403,6 +419,7 @@ class BareMetalAPI(BaseVultrV2):
         resp = self._get(f"/{bare_metal_id}/user-data")
         return UserData.from_dict(get_only_value(resp))
 
+    @command
     def list_upgrades(self, bare_metal_id: str, upgrade_type: BareMetalUpgradeType = None) -> BareMetalAvailableUpgrade:
         """Get available upgrades for a Bare Metal.
 
@@ -419,6 +436,7 @@ class BareMetalAPI(BaseVultrV2):
         resp = self._get(f"/{bare_metal_id}/upgrades", params=_params)
         return BareMetalAvailableUpgrade.from_dict(get_only_value(resp))
 
+    @command
     def get_vnc(self, bare_metal_id: str) -> BareMetalVNC:
         """Get the VNC URL for a Bare Metal.
 

@@ -1,11 +1,49 @@
+import json
 import logging
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, is_dataclass
+from datetime import date, datetime
+from decimal import Decimal
 from enum import Enum, unique
+from functools import partial
 from typing import Any, Dict, Optional
 
 import dacite
+from pygments import formatters, highlight
+from pygments.lexers import JsonLexer
 
 log = logging.getLogger(__name__)
+
+
+def json_default_func(date_fmt="%Y-%m-%d", dt_fmt="%Y-%m-%d %H:%M:%S", decimal_fmt=str):
+    """Serialize additional types."""
+
+    def encoder(obj):
+        if isinstance(obj, datetime):
+            return obj.strftime(dt_fmt)
+        elif isinstance(obj, date):
+            return obj.strftime(date_fmt)
+        elif isinstance(obj, Decimal):
+            return decimal_fmt(obj)
+        elif isinstance(obj, BaseDataclass):
+            return obj.to_dict()
+        elif is_dataclass(obj):
+            return asdict(obj)
+        raise TypeError("%r is not JSON serializable" % obj)
+
+    return encoder
+
+
+json_dumps = partial(json.dumps, default=json_default_func())
+
+
+def make_colorful(obj: Any):
+    """Make colorful output with pygments."""
+    try:
+        json_str = json_dumps(obj, indent=4)
+        return highlight(json_str, lexer=JsonLexer(), formatter=formatters.TerminalFormatter())
+    except Exception as e:
+        log.error(f"Error while formatting json: {e}.")
+        return str(obj)
 
 
 def merge_args(*args: Optional[Dict]) -> Dict:

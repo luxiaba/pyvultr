@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 from .enums import FirewallProtocol, IPType
 
 
@@ -43,7 +43,7 @@ class FirewallRule(BaseDataclass):
 class FirewallAPI(BaseVultrV2):
     """Vultr Firewall API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/firewall
+    Reference: https://www.vultr.com/api/#tag/firewall
 
     Vultr offers a web-based firewall solution to protect one or more compute instances.
     Firewall groups can manage multiple servers with a standard ruleset. You can control multiple groups with the API.
@@ -60,6 +60,7 @@ class FirewallAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "firewalls")
 
+    @command
     def list_groups(
         self,
         per_page: int = None,
@@ -84,6 +85,7 @@ class FirewallAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create_group(self, description: str = None) -> FirewallGroup:
         """Create a new Firewall Group.
 
@@ -99,6 +101,7 @@ class FirewallAPI(BaseVultrV2):
         resp = self._post(json=_json)
         return FirewallGroup.from_dict(get_only_value(resp))
 
+    @command
     def get_group(self, firewall_group_id: str) -> FirewallGroup:
         """Get information for a Firewall Group.
 
@@ -111,6 +114,7 @@ class FirewallAPI(BaseVultrV2):
         resp = self._get(f"/{firewall_group_id}")
         return FirewallGroup.from_dict(get_only_value(resp))
 
+    @command
     def update_group(self, firewall_group_id: str, description: str):
         """Update information for a Firewall Group.
 
@@ -127,6 +131,7 @@ class FirewallAPI(BaseVultrV2):
         }
         return self._post(f"/{firewall_group_id}", json=_json)
 
+    @command
     def delete_group(self, firewall_group_id: str):
         """Delete a Firewall Group.
 
@@ -139,6 +144,7 @@ class FirewallAPI(BaseVultrV2):
         """
         return self._delete(f"/{firewall_group_id}")
 
+    @command
     def list_rules(
         self,
         firewall_group_id: str,
@@ -166,6 +172,7 @@ class FirewallAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create_rule(
         self,
         firewall_group_id: str,
@@ -206,6 +213,7 @@ class FirewallAPI(BaseVultrV2):
         resp = self._post(f"/{firewall_group_id}/rules", json=_json)
         return FirewallRule.from_dict(get_only_value(resp))
 
+    @command
     def get_rule(self, firewall_group_id: str, firewall_rule_id: str) -> FirewallRule:
         """Get a Firewall Rule.
 
@@ -219,6 +227,7 @@ class FirewallAPI(BaseVultrV2):
         resp = self._get(f"/{firewall_group_id}/rules/{firewall_rule_id}")
         return FirewallRule.from_dict(get_only_value(resp))
 
+    @command
     def delete_rule(self, firewall_group_id: str, firewall_rule_id: str):
         """Delete a Firewall Rule.
 

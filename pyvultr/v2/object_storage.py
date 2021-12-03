@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 
 
 @dataclass
@@ -41,7 +41,7 @@ class ObjectStorageClusterItem(BaseDataclass):
 class ObjectStorageAPI(BaseVultrV2):
     """Vultr ObjectStorage API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/s3
+    Reference: https://www.vultr.com/api/#tag/s3
 
     Object Storage is S3 API compatible. Objects uploaded to object storage can be accessed privately or
     publicly on the web. Object storage supports a virtually unlimited number of objects.
@@ -59,6 +59,7 @@ class ObjectStorageAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "object-storage")
 
+    @command
     def list(
         self,
         per_page: int = None,
@@ -83,6 +84,7 @@ class ObjectStorageAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(self, cluster_id: str, label: str = None) -> ObjectStorage:
         """Create new Object Storage. The `cluster_id` attribute is required.
 
@@ -100,6 +102,7 @@ class ObjectStorageAPI(BaseVultrV2):
         resp = self._post(json=_json)
         return ObjectStorage.from_dict(get_only_value(resp))
 
+    @command
     def get(self, object_storage_id: str) -> ObjectStorage:
         """Get information about an Object Storage.
 
@@ -112,6 +115,7 @@ class ObjectStorageAPI(BaseVultrV2):
         resp = self._get(f"/{object_storage_id}")
         return ObjectStorage.from_dict(get_only_value(resp))
 
+    @command
     def delete(self, object_storage_id: str):
         """Delete an Object Storage.
 
@@ -124,6 +128,7 @@ class ObjectStorageAPI(BaseVultrV2):
         """
         return self._delete(f"/{object_storage_id}")
 
+    @command
     def update(self, object_storage_id: str, label: str):
         """Update the label for an Object Storage.
 
@@ -140,6 +145,7 @@ class ObjectStorageAPI(BaseVultrV2):
         }
         return self._patch(f"/{object_storage_id}", json=_json)
 
+    @command
     def regenerate_keys(self, object_storage_id: str) -> ObjectStorageS3Credential:
         """Regenerate the keys for an Object Storage.
 
@@ -152,6 +158,7 @@ class ObjectStorageAPI(BaseVultrV2):
         resp = self._post(f"/{object_storage_id}/regenerate-keys")
         return ObjectStorageS3Credential.from_dict(get_only_value(resp))
 
+    @command
     def list_clusters(
         self,
         per_page: int = None,

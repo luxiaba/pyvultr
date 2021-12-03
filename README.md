@@ -69,6 +69,63 @@ print(first_region.country, first_region.city)
 # >>> NL Amsterdam
 ```
 
+## CLI
+PyVultr also provides a command line interface.  
+It's a simple wrapper of the python library using [Fire](https://github.com/google/python-fire),  and it has a beautiful output by using [Pygments](https://github.com/pygments/pygments).  
+It registered a command `pyvultr` in the system, so you can just type `pyvultr` to use it:
+```shell
+# please setup Your API Key first:
+# you can generate your API Key from https://my.vultr.com/settings/#settingsapi
+# export VULTR_API_KEY="..."
+
+# show help by type `pyvultr`
+$ pyvultr
+```
+
+`pyvultr` cli usage is very similar to the python library usage.
+let's explain this with get account information api :
+
+**In Python**:
+```python
+from pyvultr import VultrV2
+
+# here we get api key from env `VULTR_API_KEY`
+VultrV2().account.get()
+>>> AccountInfo(name='test man', email='test@xxx.xxx', acls=['manage_users', 'subscriptions_view', 'subscriptions', 'billing', 'support', 'provisioning', 'dns', 'abuse', 'upgrade', 'firewall', 'alerts', 'objstore', 'loadbalancer', 'vke'], balance=11.2, pending_charges=3.4, last_payment_date='2019-07-16T05:19:50+00:00', last_payment_amount=-10)
+```
+
+**In CLI**:  
+```shell
+$ pyvultr account get
+{
+    "name": "test man",
+    "email": "test@xxx.xxx",
+    "acls": [
+        "manage_users",
+        "subscriptions_view",
+        "subscriptions",
+        "billing",
+        "support",
+        "provisioning",
+        "dns",
+        "abuse",
+        "upgrade",
+        "firewall",
+        "alerts",
+        "objstore",
+        "loadbalancer",
+        "vke"
+    ],
+    "balance": 11.2,
+    "pending_charges": 3.4,
+    "last_payment_date": "2019-07-16T05:19:50+00:00",
+    "last_payment_amount": -10
+}
+```
+Actually, we have a beautiful output:  
+
+![CLI Example](./doc/cli_example.png)
+
 ### Testing
 ```Python
 python -m pytest -v

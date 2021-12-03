@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 from .enums import BackupScheduleType, InstanceUpgradeType
 
 log = logging.getLogger(__name__)
@@ -171,7 +171,7 @@ class AvailableUpgrade(BaseDataclass):
 class InstanceAPI(BaseVultrV2):
     """Vultr Instance API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/instances
+    Reference: https://www.vultr.com/api/#tag/instances
 
     Vultr Cloud instances can be deployed with your preferred operating system or pre-installed application in seconds.
     High Frequency Compute instances are powered by high clock speed CPU's and NVMe local storage to power
@@ -189,6 +189,7 @@ class InstanceAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "instances")
 
+    @command
     def list(
         self,
         per_page: int = None,
@@ -225,6 +226,7 @@ class InstanceAPI(BaseVultrV2):
             **_extra_params,
         )
 
+    @command
     def create(self, instance: ReqInstance) -> Optional[Instance]:
         """Create a new VPS Instance in a region with the desired plan.
 
@@ -255,6 +257,7 @@ class InstanceAPI(BaseVultrV2):
         resp = self._post(json=instance.to_dict())
         return Instance.from_dict(get_only_value(resp))
 
+    @command
     def get(self, instance_id: str) -> Instance:
         """Get information about an Instance.
 
@@ -267,6 +270,7 @@ class InstanceAPI(BaseVultrV2):
         resp = self._get(f"/{instance_id}")
         return Instance.from_dict(get_only_value(resp))
 
+    @command
     def update(self, instance_id: str, **kwargs) -> Instance:
         """Update information for an Instance.
 
@@ -283,6 +287,7 @@ class InstanceAPI(BaseVultrV2):
         resp = self._patch(f"/{instance_id}", json=kwargs)
         return Instance.from_dict(get_only_value(resp))
 
+    @command
     def delete(self, instance_id: str):
         """Delete an Instance.
 
@@ -295,6 +300,7 @@ class InstanceAPI(BaseVultrV2):
         """
         return self._delete(f"/{instance_id}")
 
+    @command
     def batch_halt(self, instance_ids: List[str]):
         """Halt Instances.
 
@@ -310,6 +316,7 @@ class InstanceAPI(BaseVultrV2):
         }
         return self._post("/halt", json=_json)
 
+    @command
     def batch_reboot(self, instance_ids: List[str]):
         """Reboot Instances.
 
@@ -325,6 +332,7 @@ class InstanceAPI(BaseVultrV2):
         }
         return self._post("/reboot", json=_json)
 
+    @command
     def batch_start(self, instance_ids: List[str]):
         """Start Instances.
 
@@ -340,6 +348,7 @@ class InstanceAPI(BaseVultrV2):
         }
         return self._post("/start", json=_json)
 
+    @command
     def start(self, instance_id: str):
         """Start an Instance.
 
@@ -352,6 +361,7 @@ class InstanceAPI(BaseVultrV2):
         """
         return self._post(f"/{instance_id}/start")
 
+    @command
     def reboot(self, instance_id: str):
         """Reboot an Instance.
 
@@ -364,6 +374,7 @@ class InstanceAPI(BaseVultrV2):
         """
         return self._post(f"/{instance_id}/reboot")
 
+    @command
     def reinstall(self, instance_id: str, hostname: str = None) -> Instance:
         """Reinstall an Instance using an optional `hostname`.
 
@@ -382,6 +393,7 @@ class InstanceAPI(BaseVultrV2):
         resp = self._post(f"/{instance_id}/reinstall", json=_json)
         return Instance.from_dict(get_only_value(resp))
 
+    @command
     def get_bandwidth(self, instance_id: str) -> Dict[str, BandwidthItem]:
         """Get bandwidth information about an Instance.
 
@@ -401,6 +413,7 @@ class InstanceAPI(BaseVultrV2):
         resp = get_only_value(_resp)
         return {_date: BandwidthItem.from_dict(item) for _date, item in resp.items()}
 
+    @command
     def list_neighbors(self, instance_id: str) -> List[str]:
         """Get a list of other instances in the same location as this Instance.
 
@@ -413,6 +426,7 @@ class InstanceAPI(BaseVultrV2):
         resp = self._get(f"/{instance_id}/neighbors")
         return get_only_value(resp)
 
+    @command
     def list_private_networks(
         self,
         instance_id: str,
@@ -440,6 +454,7 @@ class InstanceAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def get_iso_status(self, instance_id: str) -> ISOStatus:
         """Get the ISO status for an Instance.
 
@@ -452,6 +467,7 @@ class InstanceAPI(BaseVultrV2):
         resp = self._get(f"/{instance_id}/iso")
         return ISOStatus.from_dict(get_only_value(resp))
 
+    @command
     def attach_iso(self, instance_id: str, iso_id: str = None):
         """Attach an ISO to an Instance.
 
@@ -468,6 +484,7 @@ class InstanceAPI(BaseVultrV2):
         }
         return self._post(f"/{instance_id}/iso/attach", json=_json)
 
+    @command
     def detach_iso(self, instance_id: str):
         """Detach the ISO from an Instance.
 
@@ -480,6 +497,7 @@ class InstanceAPI(BaseVultrV2):
         """
         return self._post(f"/{instance_id}/iso/detach")
 
+    @command
     def attach_private_network(self, instance_id: str, network_id: str = None):
         """Attach Private Network to an Instance.
 
@@ -496,6 +514,7 @@ class InstanceAPI(BaseVultrV2):
         }
         return self._post(f"/{instance_id}/private-networks/attach", json=_json)
 
+    @command
     def detach_private_network(self, instance_id: str, network_id: str = None):
         """Detach Private Network from an Instance.
 
@@ -512,6 +531,7 @@ class InstanceAPI(BaseVultrV2):
         }
         return self._post(f"/{instance_id}/private-networks/detach", json=_json)
 
+    @command
     def set_backup_schedule(
         self,
         instance_id: str,
@@ -541,6 +561,7 @@ class InstanceAPI(BaseVultrV2):
         resp = self._post(f"/{instance_id}/backup-schedule", json=_json)
         return BackupSchedule.from_dict(get_only_value(resp))
 
+    @command
     def get_backup_schedule(self, instance_id: str) -> BackupSchedule:
         """Get the backup schedule for an Instance.
 
@@ -553,6 +574,7 @@ class InstanceAPI(BaseVultrV2):
         resp = self._get(f"/{instance_id}/backup-schedule")
         return BackupSchedule.from_dict(get_only_value(resp))
 
+    @command
     def restore(self, instance_id: str, backup_id: str = None, snapshot_id: str = None) -> RestoreStatus:
         """Restore an Instance from either `backup_id` or `snapshot_id`.
 
@@ -571,6 +593,7 @@ class InstanceAPI(BaseVultrV2):
         resp = self._post(f"/{instance_id}/restore", json=_json)
         return RestoreStatus.from_dict(get_only_value(resp))
 
+    @command
     def list_ipv4s(
         self,
         instance_id: str,
@@ -607,6 +630,7 @@ class InstanceAPI(BaseVultrV2):
             **_extra_params,
         )
 
+    @command
     def create_ipv4(self, instance_id: str, reboot: bool = None) -> IPv4Item:
         """Create an IPv4 address for an Instance.
 
@@ -623,6 +647,7 @@ class InstanceAPI(BaseVultrV2):
         resp = self._post(f"/{instance_id}/ipv4", json=_json)
         return IPv4Item.from_dict(get_only_value(resp))
 
+    @command
     def list_ipv6s(
         self,
         instance_id: str,
@@ -650,6 +675,7 @@ class InstanceAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create_ipv6_reverse(self, instance_id: str, ip: str, reverse: str):
         """Create a reverse IPv6 entry for an Instance.
 
@@ -670,6 +696,7 @@ class InstanceAPI(BaseVultrV2):
         }
         return self._post(f"/{instance_id}/ipv6/reverse", json=_json)
 
+    @command
     def list_ipv6_reverses(self, instance_id: str) -> List[IPv6ReverseItem]:
         """List the reverse IPv6 information for an Instance.
 
@@ -683,6 +710,7 @@ class InstanceAPI(BaseVultrV2):
         reps = get_only_value(_resp)
         return [IPv6ReverseItem.from_dict(r) for r in reps]
 
+    @command
     def create_ipv4_reverse(self, instance_id: str, ip: str, reverse: str):
         """Create a reverse IPv4 entry for an Instance.
 
@@ -703,6 +731,7 @@ class InstanceAPI(BaseVultrV2):
         }
         return self._post(f"/{instance_id}/ipv4/reverse", json=_json)
 
+    @command
     def get_user_date(self, instance_id: str) -> UserData:
         """Get the user-supplied, base64 encoded user data for an Instance.
 
@@ -715,6 +744,7 @@ class InstanceAPI(BaseVultrV2):
         resp = self._get(f"/{instance_id}/user-data")
         return UserData.from_dict(get_only_value(resp))
 
+    @command
     def halt(self, instance_id: str):
         """Halt an Instance.
 
@@ -727,6 +757,7 @@ class InstanceAPI(BaseVultrV2):
         """
         return self._post(f"/{instance_id}/halt")
 
+    @command
     def set_default_reverse_dns_entry(self, instance_id: str, ip: str):
         """Set a reverse DNS entry for an IPv4 address.
 
@@ -743,6 +774,7 @@ class InstanceAPI(BaseVultrV2):
         }
         return self._post(f"/{instance_id}/reverse/default", json=_json)
 
+    @command
     def delete_ipv4(self, instance_id: str, ipv4: str):
         """Delete an IPv4 address from an Instance.
 
@@ -756,6 +788,7 @@ class InstanceAPI(BaseVultrV2):
         """
         return self._delete(f"/{instance_id}/ipv4/{ipv4}")
 
+    @command
     def delete_reverse_ipv6(self, instance_id: str, ipv6: str):
         """Delete the reverse IPv6 for an Instance.
 
@@ -769,6 +802,7 @@ class InstanceAPI(BaseVultrV2):
         """
         return self._delete(f"/{instance_id}/ipv6/reverse/{ipv6}")
 
+    @command
     def list_upgrades(self, instance_id: str, upgrade_type: InstanceUpgradeType = None) -> AvailableUpgrade:
         """Get available upgrades for an Instance.
 

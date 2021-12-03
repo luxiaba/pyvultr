@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 
 
 @dataclass
@@ -18,7 +18,7 @@ class SSHKey(BaseDataclass):
 class SSHKeyAPI(BaseVultrV2):
     """Vultr SSHKey API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/ssh
+    Reference: https://www.vultr.com/api/#tag/ssh
 
     You can add SSH keys to your account, which can be copied to new instances when first deployed.
     Updating a key does not update any running instances.
@@ -36,6 +36,7 @@ class SSHKeyAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "ssh-keys")
 
+    @command
     def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[SSHKey]:
         """List all SSH Keys in your account.
 
@@ -55,6 +56,7 @@ class SSHKeyAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(self, name: str, ssh_key: str) -> SSHKey:
         """Create a new SSH Key for use with future instances.
 
@@ -74,6 +76,7 @@ class SSHKeyAPI(BaseVultrV2):
         resp = self._post(json=_json)
         return SSHKey.from_dict(get_only_value(resp))
 
+    @command
     def get(self, ssh_key_id: str) -> SSHKey:
         """Get information about an SSH Key.
 
@@ -86,6 +89,7 @@ class SSHKeyAPI(BaseVultrV2):
         resp = self._get(f"/{ssh_key_id}")
         return SSHKey.from_dict(get_only_value(resp))
 
+    @command
     def update(self, ssh_key_id: str, name: str = None, ssh_key: str = None):
         """Update an SSH Key.
 
@@ -108,6 +112,7 @@ class SSHKeyAPI(BaseVultrV2):
         }
         return self._put(f"/{ssh_key_id}", json=_json)
 
+    @command
     def delete(self, ssh_key_id: str):
         """Delete an SSH Key.
 

@@ -4,7 +4,7 @@ from typing import Optional
 
 from pyvultr.utils import BaseDataclass, VultrPagination
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 
 
 @dataclass
@@ -18,18 +18,16 @@ class OS(BaseDataclass):
 class OperatingSystemAPI(BaseVultrV2):
     """Vultr OS API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/os
+    Reference: https://www.vultr.com/api/#tag/os
 
     We have a wide range of operating systems available to deploy server instances.
     You can also upload an ISO or choose from our public ISO library.
-
-    Attributes:
-        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
     """
 
     def __init__(self, api_key: Optional[str] = None):
         super().__init__(api_key)
 
+    @command
     def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[OS]:
         """List the OS images available for installation at Vultr.
 

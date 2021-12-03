@@ -4,7 +4,7 @@ from typing import Optional
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 
 
 @dataclass
@@ -29,7 +29,7 @@ class PublicISOItem(BaseDataclass):
 class ISOAPI(BaseVultrV2):
     """Vultr ISO API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/iso
+    Reference: https://www.vultr.com/api/#tag/iso
 
     Upload and boot instances from your ISO, or choose one from our public ISO library. See our ISO documentation.
 
@@ -40,6 +40,7 @@ class ISOAPI(BaseVultrV2):
     def __init__(self, api_key: Optional[str] = None):
         super().__init__(api_key)
 
+    @command
     def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[ISO]:
         """Get the ISOs in your account.
 
@@ -60,6 +61,7 @@ class ISOAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(self, url: str) -> ISO:
         """Create a new ISO in your account from `url`.
 
@@ -75,6 +77,7 @@ class ISOAPI(BaseVultrV2):
         resp = self._post("/iso", json=_json)
         return ISO.from_dict(get_only_value(resp))
 
+    @command
     def get(self, iso_id: str) -> ISO:
         """Get information for an ISO.
 
@@ -87,6 +90,7 @@ class ISOAPI(BaseVultrV2):
         resp = self._get(f"/iso/{iso_id}")
         return ISO.from_dict(get_only_value(resp))
 
+    @command
     def delete(self, iso_id: str):
         """Delete an ISO.
 
@@ -99,6 +103,7 @@ class ISOAPI(BaseVultrV2):
         """
         return self._delete(f"/iso/{iso_id}")
 
+    @command
     def list_public(
         self,
         per_page: int = None,

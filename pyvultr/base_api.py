@@ -41,7 +41,7 @@ class BaseAPI(ABC):
         resp = _session.request(method=method.value, url=_url, **kwargs)
 
         if not resp.ok:
-            log.error(f"request to {self.__class__.__name__} {_url} failed: {resp.text}")
+            log.error(f"Request to {self.__class__.__name__}: {_url}, failed: {resp.text}")
         return self.after_response(resp)
 
     @property
@@ -106,7 +106,7 @@ class BaseVultrAPI(BaseAPI):
         self.api_version: SupportVultrAPIVersion = version
         self.__token: str = os.getenv(ENV_TOKEN_NAME) or api_key
         if not self.__token:
-            raise NoAPIKeyException(f"Missing Vultr API token: no {ENV_TOKEN_NAME} env or `api_key` arg.")
+            raise NoAPIKeyException(f"Missing Vultr API Key: no `{ENV_TOKEN_NAME}` env or `api_key` arg.")
 
     @property
     def base_url(self) -> str:

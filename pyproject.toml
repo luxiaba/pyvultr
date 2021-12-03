@@ -32,12 +32,17 @@ classifiers = [
 python = "^3.6.2"
 requests = "^2.26.0"
 dacite = "^1.6.0"
+fire = "^0.4.0"
+Pygments = "^2.10.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
 black = "^21.11b1"
 pre-commit = "^2.15.0"
 pytest-cover = "^3.0.0"
+
+[tool.poetry.scripts]
+pyvultr = "pyvultr.cli:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

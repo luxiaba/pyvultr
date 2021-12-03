@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from pyvultr.utils import BaseDataclass, VultrPagination
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 from .enums import RegionType
 
 
@@ -39,7 +39,7 @@ class BareMetalPlanItem(BaseDataclass):
 class PlanAPI(BaseVultrV2):
     """Vultr Plan API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/plans
+    Reference: https://www.vultr.com/api/#tag/plans
 
     A Plan is a particular configuration of vCPU, RAM, SSD, and bandwidth to deploy an Instance.
     Not all Plans are available in all Regions.
@@ -53,6 +53,7 @@ class PlanAPI(BaseVultrV2):
         # set api key
         super().__init__(api_key)
 
+    @command
     def list(
         self,
         per_page: int = None,
@@ -87,6 +88,7 @@ class PlanAPI(BaseVultrV2):
             **_extra_params,
         )
 
+    @command
     def list_bare_metal(
         self,
         per_page: int = None,

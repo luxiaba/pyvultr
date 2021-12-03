@@ -38,6 +38,14 @@ log = logging.getLogger(__name__)
 
 
 class VultrV2:
+    """Python Library for Vultr API(V2).
+
+    Reference: https://www.vultr.com/api/
+
+    Attributes:
+        api_key: Vultr API key, we get it from env variable `$VULTR_API_KEY` if not provided.
+    """
+
     def __init__(self, api_key: str = None):
         self.account = AccountAPI(api_key)
         self.application = ApplicationAPI(api_key)

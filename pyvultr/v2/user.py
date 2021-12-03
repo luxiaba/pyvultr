@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 from .enums import ACL
 
 
@@ -21,7 +21,7 @@ class UserInfo(BaseDataclass):
 class UserAPI(BaseVultrV2):
     """Vultr User API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/users
+    Reference: https://www.vultr.com/api/#tag/users
 
     Vultr supports multiple users in each account, and each user has individual access permissions.
     Users have unique API keys, which respect the permission for that user.
@@ -38,6 +38,7 @@ class UserAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "users")
 
+    @command
     def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[UserInfo]:
         """Get a list of all Users in your account.
 
@@ -57,6 +58,7 @@ class UserAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(
         self,
         name: str,
@@ -87,6 +89,7 @@ class UserAPI(BaseVultrV2):
         resp = self._post(json=_json)
         return UserInfo.from_dict(get_only_value(resp))
 
+    @command
     def get(self, user_id: str) -> UserInfo:
         """Get information about a User.
 
@@ -99,6 +102,7 @@ class UserAPI(BaseVultrV2):
         resp = self._get(f"/{user_id}")
         return UserInfo.from_dict(get_only_value(resp))
 
+    @command
     def update(
         self,
         user_id: str,
@@ -133,6 +137,7 @@ class UserAPI(BaseVultrV2):
         }
         return self._patch(f"/{user_id}", json=_json)
 
+    @command
     def delete(self, user_id: str):
         """Delete a User.
 

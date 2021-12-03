@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 
 
 @dataclass
@@ -21,7 +21,7 @@ class Snapshot(BaseDataclass):
 class SnapshotAPI(BaseVultrV2):
     """Vultr Snapshot API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/snapshot
+    Reference: https://www.vultr.com/api/#tag/snapshot
 
     A snapshot is a point-in-time image of an instance. We do not stop the instance when taking a snapshot.
     Booting from a snapshot is similar to rebooting after a non-graceful restart. Snapshots are physically the
@@ -40,6 +40,7 @@ class SnapshotAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "snapshots")
 
+    @command
     def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[Snapshot]:
         """Get information about all Snapshots in your account.
 
@@ -59,6 +60,7 @@ class SnapshotAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(self, instance_id: str, description: str = None) -> Snapshot:
         """Create a new Snapshot for `instance_id`.
 
@@ -76,6 +78,7 @@ class SnapshotAPI(BaseVultrV2):
         resp = self._post(json=_json)
         return Snapshot.from_dict(get_only_value(resp))
 
+    @command
     def create_from_url(self, url: str) -> Snapshot:
         """Create a new Snapshot from a RAW image located at `url`.
 
@@ -91,6 +94,7 @@ class SnapshotAPI(BaseVultrV2):
         resp = self._post("/create-from-url", json=_json)
         return Snapshot.from_dict(get_only_value(resp))
 
+    @command
     def get(self, snapshot_id: str) -> Snapshot:
         """Get information about a Snapshot.
 
@@ -103,6 +107,7 @@ class SnapshotAPI(BaseVultrV2):
         resp = self._get(f"/{snapshot_id}")
         return Snapshot.from_dict(get_only_value(resp))
 
+    @command
     def update(self, snapshot_id: str, description: str):
         """Update the description for a Snapshot.
 
@@ -119,6 +124,7 @@ class SnapshotAPI(BaseVultrV2):
         }
         return self._put(f"/{snapshot_id}", json=_json)
 
+    @command
     def delete(self, snapshot_id: str):
         """Delete a Snapshot.
 

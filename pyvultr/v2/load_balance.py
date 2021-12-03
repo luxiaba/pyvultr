@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value, merge_args
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 from .enums import LoadBalanceAlgorithm, LoadBalanceProtocol
 
 
@@ -83,7 +83,7 @@ class LoadBalance(BaseDataclass):
 class LoadBalanceAPI(BaseVultrV2):
     """Vultr LoanBalance API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/load-balancer
+    Reference: https://www.vultr.com/api/#tag/load-balancer
 
     Load Balancers sit in front of your application and distribute incoming traffic across multiple Instances.
     When you control the load balancer via the API, you can inspect the results in the customer portal.
@@ -100,6 +100,7 @@ class LoadBalanceAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "load-balancers")
 
+    @command
     def list(self, per_page: int = None, cursor: str = None, capacity: int = None) -> VultrPagination[LoadBalance]:
         """List the Load Balancers in your account.
 
@@ -119,6 +120,7 @@ class LoadBalanceAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(self, region: str, **kwargs) -> LoadBalance:
         """Create a new Load Balancer in a particular `region`.
 
@@ -133,6 +135,7 @@ class LoadBalanceAPI(BaseVultrV2):
         resp = self._post(json=merge_args(kwargs, _fixed_kwargs))
         return LoadBalance.from_dict(get_only_value(resp))
 
+    @command
     def get(self, load_balancer_id: str) -> LoadBalance:
         """Get information for a Load Balancer.
 
@@ -145,6 +148,7 @@ class LoadBalanceAPI(BaseVultrV2):
         resp = self._get(f"/{load_balancer_id}")
         return LoadBalance.from_dict(get_only_value(resp))
 
+    @command
     def update(self, load_balancer_id: str, **kwargs):
         """Update information for a Load Balancer.
 
@@ -160,6 +164,7 @@ class LoadBalanceAPI(BaseVultrV2):
         """
         return self._patch(f"/{load_balancer_id}", json=kwargs)
 
+    @command
     def delete(self, load_balancer_id: str):
         """Delete a Load Balancer.
 
@@ -172,6 +177,7 @@ class LoadBalanceAPI(BaseVultrV2):
         """
         return self._delete(f"/{load_balancer_id}")
 
+    @command
     def list_forwarding_rules(
         self,
         load_balancer_id: str,
@@ -199,6 +205,7 @@ class LoadBalanceAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create_forwarding_rule(
         self,
         load_balancer_id: str,
@@ -228,6 +235,7 @@ class LoadBalanceAPI(BaseVultrV2):
         resp = self._post(f"/{load_balancer_id}/forwarding-rules", json=_json)
         return LoadBalanceForwardRule.from_dict(get_only_value(resp))
 
+    @command
     def get_forwarding_rule(self, load_balancer_id: str, forwarding_rule_id: str) -> LoadBalanceForwardRule:
         """Get information for a Forwarding Rule on a Load Balancer.
 
@@ -241,6 +249,7 @@ class LoadBalanceAPI(BaseVultrV2):
         resp = self._get(f"/{load_balancer_id}/forwarding-rules/{forwarding_rule_id}")
         return LoadBalanceForwardRule.from_dict(get_only_value(resp))
 
+    @command
     def delete_forwarding_rule(self, load_balancer_id: str, forwarding_rule_id: str):
         """Delete a Forwarding Rule on a Load Balancer.
 
@@ -254,6 +263,7 @@ class LoadBalanceAPI(BaseVultrV2):
         """
         return self._delete(f"/{load_balancer_id}/forwarding-rules/{forwarding_rule_id}")
 
+    @command
     def list_firewall_rules(
         self,
         load_balancer_id: str,
@@ -281,6 +291,7 @@ class LoadBalanceAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def get_firewall_rule(self, load_balancer_id: str, forwarding_rule_id: str) -> LoadBalanceFirewallRule:
         """Get a firewall rule for a Load Balancer.
 

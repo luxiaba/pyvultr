@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 
 
 @dataclass
@@ -21,7 +21,7 @@ class PrivateNetwork(BaseDataclass):
 class PrivateNetworkAPI(BaseVultrV2):
     """Vultr PrivateNetwork API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/private-Networks
+    Reference: https://www.vultr.com/api/#tag/private-Networks
 
     Private Networks are fully isolated networks accessible only by instances on your account.
     Each private network is only available in one Region and cannot span across regions.
@@ -39,6 +39,7 @@ class PrivateNetworkAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "private-networks")
 
+    @command
     def list(
         self,
         per_page: int = None,
@@ -63,6 +64,7 @@ class PrivateNetworkAPI(BaseVultrV2):
             capacity=capacity,
         )
 
+    @command
     def create(
         self,
         region: str,
@@ -95,6 +97,7 @@ class PrivateNetworkAPI(BaseVultrV2):
         resp = self._post(json=_json)
         return PrivateNetwork.from_dict(get_only_value(resp))
 
+    @command
     def get(self, network_id: str) -> PrivateNetwork:
         """Get information about a Private Network.
 
@@ -107,6 +110,7 @@ class PrivateNetworkAPI(BaseVultrV2):
         resp = self._get(f"/{network_id}")
         return PrivateNetwork.from_dict(get_only_value(resp))
 
+    @command
     def update(self, network_id: str, description: str):
         """Update information for a Private Network.
 
@@ -123,6 +127,7 @@ class PrivateNetworkAPI(BaseVultrV2):
         }
         return self._put(f"/{network_id}", json=_json)
 
+    @command
     def delete(self, network_id: str):
         """Delete a Private Network.
 

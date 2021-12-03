@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from pyvultr.utils import BaseDataclass, VultrPagination, get_only_value
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 
 
 @dataclass
@@ -19,7 +19,7 @@ class Backup(BaseDataclass):
 class BackupAPI(BaseVultrV2):
     """Vultr Backup API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/backup
+    Reference: https://www.vultr.com/api/#tag/backup
 
     A backup is a scheduled, automatic, point-in-time image of an instance.
     We do not stop the instance when taking a backup. Booting from a backup is similar to rebooting
@@ -39,6 +39,7 @@ class BackupAPI(BaseVultrV2):
         """Get base url for all API in this section."""
         return urljoin(super().base_url, "backups")
 
+    @command
     def list(
         self,
         per_page: int = None,
@@ -69,6 +70,7 @@ class BackupAPI(BaseVultrV2):
             **extra_params,
         )
 
+    @command
     def get(self, backup_id: str) -> Backup:
         """Get the information for the Backup.
 

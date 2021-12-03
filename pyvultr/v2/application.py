@@ -4,7 +4,7 @@ from typing import Optional
 
 from pyvultr.utils import BaseDataclass, VultrPagination
 
-from .base import BaseVultrV2
+from .base import BaseVultrV2, command
 from .enums import ApplicationType
 
 
@@ -22,7 +22,7 @@ class Application(BaseDataclass):
 class ApplicationAPI(BaseVultrV2):
     """Vultr Application API.
 
-    Reference: https://www.vultr.com/zh/api/#tag/application
+    Reference: https://www.vultr.com/api/#tag/application
 
     One-Click and Marketplace Applications are ready-to-run with minimal configuration.
     We have an extensive documentation library for our Applications.
@@ -39,6 +39,7 @@ class ApplicationAPI(BaseVultrV2):
     def __init__(self, api_key: Optional[str] = None):
         super().__init__(api_key)
 
+    @command
     def list(
         self,
         per_page: int = None,
