@@ -117,4 +117,4 @@ class BaseVultrAPI(BaseAPI):
         """Unified preprocessing before request."""
         headers = kwargs.setdefault("headers", {})
         headers["Authorization"] = f"Bearer {self.__token}"
-        log.debug(f"Vultr API({self.api_version}) request: method: {method.value}, url: {url}, args: {kwargs}")
+        log.debug(f"Vultr API({self.api_version}) request: method: {method.value}, url: {url}")
