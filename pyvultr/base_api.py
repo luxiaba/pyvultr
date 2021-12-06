@@ -105,8 +105,6 @@ class BaseVultrAPI(BaseAPI):
     def __init__(self, version: SupportVultrAPIVersion, api_key: str = None):
         self.api_version: SupportVultrAPIVersion = version
         self.__token: str = os.getenv(ENV_TOKEN_NAME) or api_key
-        if not self.__token:
-            raise NoAPIKeyException(f"Missing Vultr API Key: no `{ENV_TOKEN_NAME}` env or `api_key` arg.")
 
     @property
     def base_url(self) -> str:
@@ -116,5 +114,7 @@ class BaseVultrAPI(BaseAPI):
     def before_request(self, method: SupportHttpMethod, url: Optional[str], kwargs: Dict):
         """Unified preprocessing before request."""
         headers = kwargs.setdefault("headers", {})
+        if not self.__token:
+            raise NoAPIKeyException(f"Missing Vultr API Key: no `{ENV_TOKEN_NAME}` env or `api_key` arg.")
         headers["Authorization"] = f"Bearer {self.__token}"
         log.debug(f"Vultr API({self.api_version}) request: method: {method.value}, url: {url}")
