@@ -5,14 +5,14 @@ import fire
 from pyvultr import VultrV2
 from pyvultr.exception import PYVException
 from pyvultr.utils.box import make_colorful
-from pyvultr.v2 import command_wrapper
+from pyvultr.v2 import global_command_wrapper
 
 CLI_NAME = "pyvultr"
 
 
 def main():
     """Vultr CLI entry point."""
-    command_wrapper.is_cli = True
+    global_command_wrapper.is_cli = True
     try:
         fire.Fire(VultrV2, name=CLI_NAME)
     except PYVException as e:

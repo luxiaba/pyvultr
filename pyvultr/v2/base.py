@@ -51,7 +51,7 @@ class CommandWrapper:
         return str(obj)
 
 
-command_wrapper = CommandWrapper()
+global_command_wrapper = CommandWrapper()
 
 
 def command(func: Callable):
@@ -68,11 +68,11 @@ def command(func: Callable):
         log.error(f"Can't get class name and func name from {func}, qualname: {qualname}")
 
     @functools.wraps(func)
-    def decorator(*func_args, **func_kwargs):
-        func_returned = func(*func_args, **func_kwargs)
-        if not command_wrapper.is_cli:
+    def decorator(*args, **kwargs):
+        func_returned = func(*args, **kwargs)
+        if not global_command_wrapper.is_cli:
             return func_returned
-        return command_wrapper.make_beautiful(func_returned)
+        return global_command_wrapper.make_beautiful(func_returned)
 
     return decorator
 

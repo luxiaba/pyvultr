@@ -2,7 +2,7 @@ from .account import AccountAPI, AccountInfo
 from .application import Application, ApplicationAPI
 from .backup import Backup, BackupAPI
 from .bare_metal import BareMetal, BareMetalAPI, BareMetalAvailableUpgrade, BareMetalVNC, ReqBareMetal
-from .base import COMMANDS, command_wrapper
+from .base import COMMANDS, global_command_wrapper
 from .billing import Bill, BillingAPI, Invoice, InvoiceItem
 from .block_storage import BlockStorage, BlockStorageAPI
 from .dns import DNSAPI, SOA, DNSRecord, Domain
@@ -54,7 +54,7 @@ from .user import UserAPI, UserInfo
 __all__ = [
     "AccountAPI",
     "COMMANDS",
-    "command_wrapper",
+    "global_command_wrapper",
     "AccountInfo",
     "ApplicationAPI",
     "Application",

@@ -94,8 +94,8 @@ class Enums(Enum):
 
 @dataclass
 class BaseDataclass:
-    def to_dict(self):
-        """Convert dataclass to dict.
+    def to_dict(self) -> Dict:
+        """Convert dataclass to python dict.
 
         Returns:
             Dict: Python dict representation of the object.

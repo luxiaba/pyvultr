@@ -106,7 +106,7 @@ class MockRequest:
 
     @property
     def python_body(self) -> T:
-        """Try convert the mock body content to a python object and return."""
+        """Try to convert the mock body content to a python object and return."""
         if is_dataclass(self.expected_returned):
             return dacite.from_dict(self.expected_returned, get_only_value(self.body))
         return self.body
