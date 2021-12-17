@@ -76,3 +76,6 @@ ignore = "D100, D101, D104, D107, D203, D213, D406, D407, D413"
 # D406: Section name should end with a newline.
 # D407: Missing dashed underline after section.
 # D413: Missing blank line after last section.
+
+[tool.coverage.run]
+source = ["pyvultr"]

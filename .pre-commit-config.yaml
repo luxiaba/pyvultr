@@ -3,7 +3,7 @@
 
 fail_fast: false
 default_language_version:
-  python: python3.6
+  python: python3
 exclude: |
   (?x)(
       \.(html|js|css)$
@@ -19,7 +19,6 @@ repos:
     rev: 1.7.1
     hooks:
       - id: bandit
-        language_version: python3.8
         additional_dependencies: ['toml']
         # not support auto read config from `pyproject.toml` for now
         args: ['-c', "pyproject.toml"]
