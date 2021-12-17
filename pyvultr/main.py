@@ -30,7 +30,7 @@ from pyvultr.v2 import (
 __author__ = "fishermanadg"
 __copyright__ = "Copyright 2021, The pyvultr Project"
 __license__ = "License: MIT"
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 __email__ = "fishermanadg@gmail.com"
 
 
