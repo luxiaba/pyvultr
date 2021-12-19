@@ -15,6 +15,10 @@ repos:
       - id: python-safety-dependencies-check
         files: pyproject.toml
         additional_dependencies: ['poetry']
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.1.0
+    hooks:
+      - id: codespell
   - repo: 'https://github.com/PyCQA/bandit'
     rev: 1.7.1
     hooks:

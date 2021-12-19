@@ -142,7 +142,7 @@ class UserAPI(BaseVultrV2):
         """Delete a User.
 
         Args:
-            user_id: Ths User id.
+            user_id: The User id.
 
         Returns:
             STATUS CODE: 204

@@ -26,7 +26,7 @@ class BareMetalPlanItem(BaseDataclass):
     id: str  # A unique ID for the Bare Metal Plan.
     cpu_count: int  # The number of CPUs in this Plan.
     cpu_model: str  # The CPU model type for this instance.
-    cpu_threads: int  # The numner of supported threads for this instance.
+    cpu_threads: int  # The number of supported threads for this instance.
     ram: int  # The amount of RAM in MB.
     disk: int  # The disk size in GB.
     bandwidth: int  # The monthly bandwidth quota in GB.
