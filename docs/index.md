@@ -125,7 +125,7 @@ $ pyvultr account get
 ```
 Actually, we have a beautiful output:  
 
-![CLI Example](./docs/cli_example.png)
+![CLI Example](cli_example.png)
 
 ### Testing
 ```Python
